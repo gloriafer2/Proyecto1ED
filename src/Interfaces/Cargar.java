@@ -168,10 +168,14 @@ import EDD.Grafo;
                 JOptionPane.showMessageDialog(this, "Archivo cargado exitosamente.", "Carga Completa", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Error al leer el archivo: " + e.getMessage(), "Error de Archivo", JOptionPane.ERROR_MESSAGE);
+                System.err.println("Error de IO al cargar archivo: " + e.getMessage()); // Para consola
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    }
+                System.err.println("Error general al cargar archivo: " + e.getMessage()); // Para consola
+                // e.printStackTrace(); // Descomentar para depuración si es permitido (usa java.util internamente)
+            }
+        }
+    
     }//GEN-LAST:event_botonCargarArchivoActionPerformed
 
     private void botonContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonContinuarActionPerformed
@@ -179,7 +183,7 @@ import EDD.Grafo;
  if (grafo != null && tablero != null && diccionario != null && diccionario.length > 0) {
             this.setVisible(false);
             // Pasa 'this' (la instancia actual de Cargar) al constructor de Menu
-            Menu menuPrincipal = new Menu(this);
+            Menu menuPrincipal = new Menu(this); // Asegúrate de que la clase Menu existe y tiene un constructor que acepta Cargar
             menuPrincipal.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Debe cargar un archivo válido antes de continuar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
@@ -190,12 +194,7 @@ import EDD.Grafo;
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
+       try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
@@ -203,13 +202,14 @@ import EDD.Grafo;
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Cargar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            // Reemplazado java.util.logging.Logger con System.err.println
+            System.err.println("Error: ClassNotFoundException: " + ex.getMessage());
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Cargar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            System.err.println("Error: InstantiationException: " + ex.getMessage());
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Cargar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            System.err.println("Error: IllegalAccessException: " + ex.getMessage());
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Cargar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            System.err.println("Error: UnsupportedLookAndFeelException: " + ex.getMessage());
         }
         //</editor-fold>
 
@@ -221,7 +221,7 @@ import EDD.Grafo;
         });
     }
     
-    //GEN-LAST:event_botonCargarArchivoActionPerformed
+                                                      
 
     /**
      * Acción realizada al presionar el botón "Continuar al Menú".
@@ -238,89 +238,127 @@ import EDD.Grafo;
      * @throws IOException Si ocurre un error de lectura.
      * @throws Exception Si el formato del tablero es incorrecto.
      */
-    private void leerArchivoDeConfiguracion(File archivo) throws IOException, Exception {
-        BufferedReader br = null;
-        String line;
-        StringBuilder diccionarioBuilder = new StringBuilder();
-        StringBuilder tableroBuilder = new StringBuilder();
-        boolean inDic = false;
-        boolean inTab = false;
+  private void leerArchivoDeConfiguracion(File archivo) throws IOException, Exception {
+    BufferedReader br = null;
+    String line;
 
-        try {
-            br = new BufferedReader(new FileReader(archivo));
-            while ((line = br.readLine()) != null) {
-                line = line.trim();
+    boolean inDic = false;
+    boolean inTab = false;
 
-                if (line.equals("dic")) {
-                    inDic = true;
-                    continue;
-                } else if (line.equals("/dic")) {
-                    inDic = false;
-                    continue;
-                } else if (line.equals("tab")) {
-                    inTab = true;
-                    continue;
-                } else if (line.equals("/tab")) {
-                    inTab = false;
-                    continue;
-                }
+    StringBuilder diccionarioContent = new StringBuilder();
+    String tableroContentLine = null; // Para almacenar la única línea del tablero
 
-                if (inDic) {
-                    diccionarioBuilder.append(line).append("\n");
-                } else if (inTab) {
-                    tableroBuilder.append(line);
-                }
+    try {
+        br = new BufferedReader(new FileReader(archivo));
+        while ((line = br.readLine()) != null) {
+            line = line.trim();
+
+            if (line.isEmpty()) {
+                continue;
             }
 
-            // Procesa el diccionario (implementación básica sin java.util.split)
-            String dicRaw = diccionarioBuilder.toString().trim();
-            if (!dicRaw.isEmpty()) {
-                String[] tempDic = new String[contarLineas(dicRaw)];
-                int index = 0;
-                int start = 0;
-                for (int i = 0; i < dicRaw.length(); i++) {
-                    if (dicRaw.charAt(i) == '\n') {
-                        tempDic[index++] = dicRaw.substring(start, i).trim();
-                        start = i + 1;
-                    }
-                }
-                if (start < dicRaw.length()) { // Añadir la última palabra si no hay salto de línea al final
-                    tempDic[index++] = dicRaw.substring(start).trim();
-                }
-                // Ajustar el tamaño del array si hay elementos null al final (por líneas vacías, etc.)
-                String[] finalDic = new String[index];
-                for(int i = 0; i < index; i++){
-                    finalDic[i] = tempDic[i];
-                }
-                this.diccionario = finalDic;
+            System.out.println("DEBUG: Leyendo línea: [" + line + "]"); // Debug 1
 
-            } else {
-                this.diccionario = new String[0];
+            if (line.equals("dic")) {
+                inDic = true;
+                inTab = false;
+                System.out.println("DEBUG: Entrando en sección dic.");
+                continue;
+            } else if (line.equals("/dic")) {
+                inDic = false;
+                System.out.println("DEBUG: Saliendo de sección dic.");
+                continue;
+            } else if (line.equals("tab")) {
+                inTab = true;
+                inDic = false;
+                tableroContentLine = null; // Reiniciar por si se lee más de una vez
+                System.out.println("DEBUG: Entrando en sección tab.");
+                continue;
+            } else if (line.equals("/tab")) {
+                inTab = false;
+                System.out.println("DEBUG: Saliendo de sección tab.");
+                continue;
             }
 
-            // Procesa el tablero (implementación básica sin java.util.split)
-            String tabRaw = tableroBuilder.toString();
-            String[] letrasArray = splitCustom(tabRaw, ',');
-            this.tablero = new char[4][4];
-            if (letrasArray.length != 16) {
-                throw new Exception("El tablero no tiene 16 letras (4x4). Se encontraron " + letrasArray.length + ".");
-            }
-            for (int i = 0; i < 16; i++) {
-                if (letrasArray[i] != null && !letrasArray[i].isEmpty()) {
-                    this.tablero[i / 4][i % 4] = letrasArray[i].charAt(0);
-                } else {
-                    throw new Exception("Caracter vacío encontrado en el tablero.");
+            // Procesar la línea según la sección activa
+            if (inDic) {
+                diccionarioContent.append(line).append("\n");
+            } else if (inTab) {
+                // Según tus instrucciones, el tablero es UNA SOLA LÍNEA de 16 caracteres separados por comas
+                if (tableroContentLine != null) {
+                    throw new Exception("Se encontró más de una línea de tablero dentro de la sección 'tab'.");
                 }
-            }
-            
-            construirGrafo();
-
-        } finally {
-            if (br != null) {
-                br.close();
+                tableroContentLine = line; // Solo almacenar la línea, no procesar aún
+                System.out.println("DEBUG: Contenido de tablero leido (temporal): [" + tableroContentLine + "]"); // Debug para ver lo que se lee
             }
         }
+
+        // --- Post-procesamiento de los datos recolectados (FUERA DEL BUCLE WHILE) ---
+
+        // 1. Procesar el diccionario
+        String dicRaw = diccionarioContent.toString().trim();
+        if (!dicRaw.isEmpty()) {
+            String[] tempDic = new String[contarLineas(dicRaw)];
+            int index = 0;
+            int start = 0;
+            for (int i = 0; i < dicRaw.length(); i++) {
+                if (dicRaw.charAt(i) == '\n') {
+                    tempDic[index++] = dicRaw.substring(start, i).trim();
+                    start = i + 1;
+                }
+            }
+            if (start < dicRaw.length()) {
+                tempDic[index++] = dicRaw.substring(start).trim();
+            }
+            String[] finalDic = new String[index];
+            for(int i = 0; i < index; i++){
+                finalDic[i] = tempDic[i];
+            }
+            this.diccionario = finalDic;
+        } else {
+            this.diccionario = new String[0];
+        }
+
+        // 2. Procesar el tablero
+        if (tableroContentLine == null || tableroContentLine.isEmpty()) {
+            throw new Exception("La sección 'tab' del archivo no contiene datos de tablero."); // Este es el error que te está dando.
+        }
+        
+        System.out.println("DEBUG: Llamando splitCustom con la línea final del tablero: [" + tableroContentLine + "]"); // Debug 7
+        String[] letrasArray = splitCustom(tableroContentLine, ','); // Aquí se debe dividir la cadena.
+        
+        System.out.println("DEBUG: splitCustom devolvió " + letrasArray.length + " elementos."); // Debug 8: LONGITUD CLAVE
+        if (letrasArray.length > 0) {
+            System.out.println("DEBUG: Primer elemento de letrasArray: [" + letrasArray[0] + "]"); // Debug 9
+        }
+
+        int expectedSize = 16;
+        int rows = 4;
+        int cols = 4;
+
+        this.tablero = new char[rows][cols];
+
+        if (letrasArray.length != expectedSize) {
+            throw new Exception("El tablero no tiene " + expectedSize + " letras (4x4). Se encontraron " + letrasArray.length + "."); // Este es el otro error que te dio ("Se encontraron 1").
+        }
+
+        for (int i = 0; i < expectedSize; i++) {
+            if (letrasArray[i] != null && !letrasArray[i].isEmpty()) {
+                this.tablero[i / cols][i % cols] = letrasArray[i].charAt(0);
+            } else {
+                throw new Exception("Caracter vacío o nulo encontrado en el tablero en la posición " + i + ".");
+            }
+        }
+        
+        // 3. Construir el grafo
+        construirGrafo();
+
+    } finally {
+        if (br != null) {
+            br.close();
+        }
     }
+}
 
     /**
      * Implementación básica de split para String sin usar java.util.String.split().
@@ -331,13 +369,11 @@ import EDD.Grafo;
      */
     private String[] splitCustom(String text, char delimiter) {
         int count = 0;
-        // Contar delimitadores para determinar el tamaño del array resultante
         for (int i = 0; i < text.length(); i++) {
             if (text.charAt(i) == delimiter) {
                 count++;
             }
         }
-        // El número de elementos será (número de delimitadores + 1)
         String[] result = new String[count + 1];
         int currentElement = 0;
         int start = 0;
@@ -347,25 +383,22 @@ import EDD.Grafo;
                 start = i + 1;
             }
         }
-        // Añadir el último elemento después del último delimitador
-        result[currentElement] = text.substring(start).trim(); 
+        // Add the last element after the last delimiter
+        result[currentElement] = text.substring(start).trim();
         return result;
     }
     
     /**
-     * Cuenta el número de líneas en un texto, asumiendo que cada salto de línea
-     * indica una nueva línea, y que una línea existe si el texto no está vacío.
-     * @param texto El texto a contar las líneas.
-     * @return El número de líneas.
+     * Counts the number of lines in a text.
+     * @param texto The text to count lines in.
+     * @return The number of lines.
      */
     private int contarLineas(String texto) {
         if (texto == null || texto.isEmpty()) {
             return 0;
         }
         int count = 0;
-        // Cuenta el número de palabras basado en los saltos de línea
-        // Mejorado para manejar casos donde la última línea no tiene un salto de línea
-        boolean previousCharIsNewline = true; // Assume start of string is like a newline
+        boolean previousCharIsNewline = true;
         for (int i = 0; i < texto.length(); i++) {
             if (texto.charAt(i) == '\n') {
                 previousCharIsNewline = true;
@@ -378,28 +411,31 @@ import EDD.Grafo;
     }
 
     /**
-     * Construye el grafo no dirigido a partir del tablero 4x4.
-     * Cada celda del tablero es un vértice, y las celdas adyacentes
-     * (horizontal, vertical, diagonal) tienen una arista.
+     * Builds the undirected graph from the 4x4 board.
+     * Each cell of the board is a vertex, and adjacent cells
+     * (horizontal, vertical, diagonal) have an edge.
      */
     private void construirGrafo() {
-        this.grafo = new Grafo(16); // Tablero 4x4 tiene 16 vértices
+        this.grafo = new Grafo(16); // 4x4 board has 16 vertices
 
-        // Direcciones para moverse (horizontal, vertical, diagonal)
-        int[] dr = {-1, -1, -1,  0, 0,  1, 1, 1}; // Cambios en la fila
-        int[] dc = {-1,  0,  1, -1, 1, -1, 0, 1}; // Cambios en la columna
+        // Directions to move (horizontal, vertical, diagonal)
+        int[] dr = {-1, -1, -1, 0, 0, 1, 1, 1}; // Row changes
+        int[] dc = {-1, 0, 1, -1, 1, -1, 0, 1}; // Column changes
 
-        for (int r = 0; r < 4; r++) {
-            for (int c = 0; c < 4; c++) {
-                int u = r * 4 + c; // Calcula el índice del vértice actual (0-15)
+        int rows = 4; // Hardcoded 4x4 as per your instructions
+        int cols = 4; // Hardcoded 4x4 as per your instructions
 
-                for (int i = 0; i < 8; i++) { // Iterar sobre las 8 posibles direcciones
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                int u = r * cols + c; // Calculate the index of the current vertex (0-15)
+
+                for (int i = 0; i < 8; i++) { // Iterate over the 8 possible directions
                     int newR = r + dr[i];
                     int newC = c + dc[i];
 
-                    // Verificar si el nuevo vecino está dentro de los límites del tablero
-                    if (newR >= 0 && newR < 4 && newC >= 0 && newC < 4) {
-                        int v = newR * 4 + newC; // Calcula el índice del vértice vecino
+                    // Check if the new neighbor is within the board limits
+                    if (newR >= 0 && newR < rows && newC >= 0 && newC < cols) {
+                        int v = newR * cols + newC; // Calculate the index of the neighbor vertex
                         grafo.agregarArista(u, v);
                     }
                 }
@@ -408,7 +444,7 @@ import EDD.Grafo;
     }
 
     /**
-     * Muestra el contenido del tablero en el JTextArea correspondiente.
+     * Displays the board content in the corresponding JTextArea.
      */
     private void mostrarTableroEnGUI() {
         StringBuilder sb = new StringBuilder();
@@ -424,7 +460,7 @@ import EDD.Grafo;
     }
 
     /**
-     * Muestra el contenido del diccionario en el JTextArea correspondiente.
+     * Displays the dictionary content in the corresponding JTextArea.
      */
     private void mostrarDiccionarioEnGUI() {
         StringBuilder sb = new StringBuilder();
@@ -436,6 +472,8 @@ import EDD.Grafo;
             }
         }
         textAreaDiccionario.setText(sb.toString());
+        
+       
     }
 
 

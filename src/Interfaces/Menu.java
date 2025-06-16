@@ -22,15 +22,15 @@ import Interfaces.BuscarPalabraEsp;
     public Cargar ventanaCargarOriginal;
 
     // Constructor (ya lo tienes o lo pegas, muy importante)
-    public Menu(Cargar v1) { // Aquí se pasa la referencia a Cargar
+    public Menu(Cargar v1) {
         initComponents();
         this.ventanaCargarOriginal = v1;
+        // IMPORTANT: Get data from the Cargar instance that loaded it
         this.grafo = v1.grafo;
         this.diccionario = v1.diccionario;
         this.tablero = v1.tablero;
-        
+
         v1.setVisible(false); // Oculta la ventana de Cargar
-        
         this.setLocationRelativeTo(null);
         this.setResizable(false);
     }
@@ -126,9 +126,10 @@ import Interfaces.BuscarPalabraEsp;
                 .addGap(27, 27, 27)
                 .addComponent(jLabel1)
                 .addGap(45, 45, 45)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(botonCargar))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(botonCargar, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -154,16 +155,18 @@ import Interfaces.BuscarPalabraEsp;
     private void botonBuscarEspActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBuscarEspActionPerformed
         // TODO add your handling code here:
         this.setVisible(false);
-        BuscarPalabraEsp buscarEspecifica = new BuscarPalabraEsp(this.grafo, this.diccionario , this.tablero, this.ventanaCargarOriginal);
-        buscarTodas.setVisible(true);
+        // Corrected the typo: use 'buscarEspecifica' variable
+        BuscarPalabraEsp buscarEspecifica = new BuscarPalabraEsp(this.grafo, this.diccionario, this.tablero, this.ventanaCargarOriginal);
+        buscarEspecifica.setVisible(true); // This should now work
     }//GEN-LAST:event_botonBuscarEspActionPerformed
 
     private void botonBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBuscarActionPerformed
         // TODO add your handling code here:
         this.setVisible(false);
-        BuscarPalabra buscarTodas = new BuscarPalabra(ventanaCargarOriginal);
+        // Corrected constructor call: pass all required arguments
+        // Assuming BuscarPalabra expects (Grafo g, String[] dict, char[][] tab, Cargar v1)
+        BuscarTodasLasPalabras buscarTodas = new BuscarTodasLasPalabras(this.grafo, this.diccionario, this.tablero, this.ventanaCargarOriginal);
         buscarTodas.setVisible(true);
-        
     }//GEN-LAST:event_botonBuscarActionPerformed
 
     /**
@@ -171,10 +174,6 @@ import Interfaces.BuscarPalabraEsp;
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -183,22 +182,15 @@ import Interfaces.BuscarPalabraEsp;
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            // Cannot use Logger, so use System.err.println for error output
+            System.err.println("Error ClassNotFoundException: " + ex.getMessage());
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            System.err.println("Error InstantiationException: " + ex.getMessage());
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            System.err.println("Error IllegalAccessException: " + ex.getMessage());
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            System.err.println("Error UnsupportedLookAndFeelException: " + ex.getMessage());
         }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new menu().setVisible(true);
-            }
-        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

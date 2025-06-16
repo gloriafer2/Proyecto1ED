@@ -24,7 +24,7 @@ public class Pila {
     }
 
     /**
-     * Agrega un elemento a la cima de la pila.
+     
      * @param elemento El elemento a agregar.
      * @throws IllegalStateException Si la pila está llena.
      */
@@ -35,11 +35,8 @@ public class Pila {
         elementos[++tope] = elemento; // Incrementa tope y luego asigna
     }
 
-    /**
-     * Elimina y devuelve el elemento de la cima de la pila.
-     * @return El elemento de la cima de la pila.
-     * @throws IllegalStateException Si la pila está vacía.
-     */
+    
+     
     public int desapilar() {
         if (estaVacia()) {
             throw new IllegalStateException("La pila está vacía");
@@ -47,11 +44,7 @@ public class Pila {
         return elementos[tope--]; // Devuelve el elemento y luego decrementa tope
     }
 
-    /**
-     * Devuelve (sin eliminar) el elemento de la cima de la pila.
-     * @return El elemento de la cima de la pila.
-     * @throws IllegalStateException Si la pila está vacía.
-     */
+   
     public int peek() {
         if (estaVacia()) {
             throw new IllegalStateException("La pila está vacía");
@@ -59,26 +52,17 @@ public class Pila {
         return elementos[tope];
     }
 
-    /**
-     * Verifica si la pila está vacía.
-     * @return true si la pila está vacía, false en caso contrario.
-     */
+    
     public boolean estaVacia() {
         return tope == -1;
     }
 
-    /**
-     * Verifica si la pila está llena.
-     * @return true si la pila está llena, false en caso contrario.
-     */
+    
     public boolean estaLlena() {
         return tope == capacidad - 1;
     }
 
-    /**
-     * Devuelve el número actual de elementos en la pila.
-     * @return El tamaño actual de la pila.
-     */
+   
     public int tamano() {
         return tope + 1;
     }

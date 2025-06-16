@@ -15,10 +15,7 @@ public class Cola {
     private int tamano;      // Número actual de elementos en la cola
     private int capacidad;   // Capacidad máxima de la cola
 
-    /**
-     * Constructor para crear una nueva Cola con una capacidad específica.
-     * @param capacidad La capacidad máxima de la cola.
-     */
+    
     public Cola(int capacidad) {
         this.capacidad = capacidad;
         this.elementos = new int[capacidad];
@@ -41,11 +38,7 @@ public class Cola {
         tamano++;
     }
 
-    /**
-     * Elimina y devuelve el elemento del frente de la cola.
-     * @return El elemento del frente de la cola.
-     * @throws IllegalStateException Si la cola está vacía.
-     */
+   
     public int desencolar() {
         if (estaVacia()) {
             throw new IllegalStateException("La cola está vacía");
@@ -56,11 +49,6 @@ public class Cola {
         return elemento;
     }
 
-    /**
-     * Devuelve (sin eliminar) el elemento del frente de la cola.
-     * @return El elemento del frente de la cola.
-     * @throws IllegalStateException Si la cola está vacía.
-     */
     public int peek() {
         if (estaVacia()) {
             throw new IllegalStateException("La cola está vacía");
@@ -68,26 +56,17 @@ public class Cola {
         return elementos[frente];
     }
 
-    /**
-     * Verifica si la cola está vacía.
-     * @return true si la cola está vacía, false en caso contrario.
-     */
+    
     public boolean estaVacia() {
         return tamano == 0;
     }
 
-    /**
-     * Verifica si la cola está llena.
-     * @return true si la cola está llena, false en caso contrario.
-     */
+    
     public boolean estaLlena() {
         return tamano == capacidad;
     }
 
-    /**
-     * Devuelve el número actual de elementos en la cola.
-     * @return El tamaño actual de la cola.
-     */
+    
     public int tamano() {
         return tamano;
     }
