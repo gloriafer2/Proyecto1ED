@@ -20,6 +20,11 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
      */
     public BuscarTodasLasPalabras(Grafo g, String[] dict, char[][] tab, Cargar v1) {
         initComponents();
+        BuscarTodasLasPalabras.grafo = g; 
+        BuscarTodasLasPalabras.diccionario = dict;
+        BuscarTodasLasPalabras.tablero = tab;
+        BuscarTodasLasPalabras.ventanaCargarOriginal = v1;
+        
     }
 
     /**
@@ -84,7 +89,7 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void botonRegresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRegresarActionPerformed
-        // TODO add your handling code here:
+      
         this.setVisible(false);
         Menu menuNuevo = new Menu(this.ventanaCargarOriginal);
         menuNuevo.setVisible(true);
@@ -98,7 +103,7 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         System.out.println("DEBUG (BuscarPalabra): Iniciando búsqueda de todas las palabras.");
 
-        // Verificación de que los datos necesarios no sean nulos o vacíos.
+       
         if (this.grafo == null || this.diccionario == null || this.tablero == null || this.diccionario.length == 0) {
             String errorMsg = "ERROR (BuscarPalabra): Datos incompletos para iniciar la búsqueda.";
             System.err.println(errorMsg); // Para depuración
@@ -107,60 +112,58 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
             return;
         }
 
-        long startTime = System.currentTimeMillis(); // Captura el tiempo de inicio de la búsqueda.
+        long startTime = System.currentTimeMillis();
 
-        StringBuilder resultadosBuilder = new StringBuilder(); // Se usa para construir el texto de resultados sin java.util.List
-        int palabrasEncontradasCount = 0; // Contador de palabras encontradas.
-
-        // Itera sobre cada palabra presente en el diccionario.
+        StringBuilder resultadosBuilder = new StringBuilder(); 
+        int palabrasEncontradasCount = 0; 
+       
         for (int i = 0; i < diccionario.length; i++) {
             String palabra = diccionario[i];
-            // Omite palabras nulas, vacías o que solo contengan espacios.
+            
             if (palabra == null || palabra.trim().isEmpty()) {
                 continue;
             }
-            palabra = palabra.trim().toUpperCase(); // Normaliza la palabra (sin espacios, mayúsculas).
+            palabra = palabra.trim().toUpperCase(); 
 
-            // Requisito del proyecto: Una palabra válida debe tener al menos 3 letras.
+            
             if (palabra.length() < 3) {
                 System.out.println("DEBUG (BuscarPalabra): Palabra '" + palabra + "' ignorada, menos de 3 letras.");
-                continue; // Salta a la siguiente palabra del diccionario.
+                continue; 
             }
 
             System.out.println("DEBUG (BuscarPalabra): Buscando palabra: " + palabra);
 
-            boolean foundInBoard = false; // Bandera para saber si la palabra ya fue encontrada en el tablero.
-            // Para cada palabra, se intenta encontrarla comenzando desde cada celda del tablero (4x4).
-            for (int r = 0; r < 4; r++) { // Bucle para filas (0 a 3)
-                for (int c = 0; c < 4; c++) { // Bucle para columnas (0 a 3)
-                    // Se crea una nueva matriz 'visited' para cada intento de búsqueda de la palabra
-                    // desde una celda inicial diferente, asegurando que cada búsqueda sea independiente.
+            boolean foundInBoard = false; 
+            
+            for (int r = 0; r < 4; r++) { 
+                for (int c = 0; c < 4; c++) { 
+                   
                     boolean[][] visited = new boolean[4][4];
-                    // Llama a la función recursiva de búsqueda (DFS).
-                    if (grafo.buscarPalabraEnCelda(palabra, r, c, visited, 0, this.grafo, this.diccionario, this.tablero)) { // 0 es el índice de la primera letra de la palabra.
-                        palabrasEncontradasCount++; // Incrementa el contador de palabras encontradas.
-                        resultadosBuilder.append("- ").append(palabra).append("\n"); // Añade la palabra al StringBuilder.
+                   
+                    if (grafo.buscarPalabraEnCelda(palabra, r, c, visited, 0, this.grafo, this.diccionario, this.tablero)) {
+                        palabrasEncontradasCount++; 
+                        resultadosBuilder.append("- ").append(palabra).append("\n"); 
                         System.out.println("DEBUG (BuscarPalabra): Palabra encontrada: " + palabra);
-                        foundInBoard = true; // Marca que la palabra fue encontrada.
-                        break; // Sale del bucle de columnas, ya que la palabra se encontró.
+                        foundInBoard = true; 
+                        break; 
                     }
                 }
                 if (foundInBoard) {
-                    break; // Sale del bucle de filas, ya que la palabra se encontró.
+                    break; 
                 }
             }
         }
 
-        long endTime = System.currentTimeMillis(); // Captura el tiempo de finalización.
-        long duration = endTime - startTime; // Calcula la duración total en milisegundos.
+        long endTime = System.currentTimeMillis(); 
+        long duration = endTime - startTime;
 
-        // Muestra los resultados y el tiempo en el JTextArea y JLabel correspondientes.
+        
         if (palabrasEncontradasCount == 0) {
             textAreaResultados.setText("No se encontraron palabras del diccionario en la sopa de letras.");
         } else {
             textAreaResultados.setText("Palabras encontradas (" + palabrasEncontradasCount + "):\n" + resultadosBuilder.toString());
         }
-        jLabelTiempo.setText("Tiempo de búsqueda: " + duration + " ms"); // Actualiza el JLabel del tiempo.
+        jLabelTiempo.setText("Tiempo de búsqueda: " + duration + " ms"); 
 
         System.out.println("DEBUG (BuscarPalabra): Resultados finales:\n" + textAreaResultados.getText());
         System.out.println("DEBUG (BuscarPalabra): Tiempo total de búsqueda: " + duration + " ms");
@@ -198,7 +201,7 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
+       
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new BuscarTodasLasPalabras(grafo, diccionario, tablero, ventanaCargarOriginal).setVisible(true);

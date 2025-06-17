@@ -24,15 +24,10 @@ import EDD.Grafo;
     public String[] diccionario;
     public char[][] tablero;
 
-
-    /**
-     * Crea una nueva instancia de la clase {@code Cargar}.
-     * Inicializa los componentes y configura la ventana.
-     */
     public Cargar() {
         initComponents();
-        this.setLocationRelativeTo(null); // Centra la ventana
-        this.setResizable(false); // No redimensionable
+        this.setLocationRelativeTo(null); 
+        this.setResizable(false); 
     }
 
 
@@ -155,7 +150,7 @@ import EDD.Grafo;
     }// </editor-fold>//GEN-END:initComponents
 
     private void botonCargarArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCargarArchivoActionPerformed
-        // TODO add your handling code here:
+       
     JFileChooser fileChooser = new JFileChooser();
         int seleccion = fileChooser.showOpenDialog(this);
 
@@ -168,22 +163,22 @@ import EDD.Grafo;
                 JOptionPane.showMessageDialog(this, "Archivo cargado exitosamente.", "Carga Completa", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Error al leer el archivo: " + e.getMessage(), "Error de Archivo", JOptionPane.ERROR_MESSAGE);
-                System.err.println("Error de IO al cargar archivo: " + e.getMessage()); // Para consola
+                System.err.println("Error de IO al cargar archivo: " + e.getMessage());
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println("Error general al cargar archivo: " + e.getMessage()); // Para consola
-                // e.printStackTrace(); // Descomentar para depuración si es permitido (usa java.util internamente)
+                System.err.println("Error general al cargar archivo: " + e.getMessage()); 
+               
             }
         }
     
     }//GEN-LAST:event_botonCargarArchivoActionPerformed
 
     private void botonContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonContinuarActionPerformed
-        // TODO add your handling code here:
+       
  if (grafo != null && tablero != null && diccionario != null && diccionario.length > 0) {
             this.setVisible(false);
-            // Pasa 'this' (la instancia actual de Cargar) al constructor de Menu
-            Menu menuPrincipal = new Menu(this); // Asegúrate de que la clase Menu existe y tiene un constructor que acepta Cargar
+            
+            Menu menuPrincipal = new Menu(this); 
             menuPrincipal.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Debe cargar un archivo válido antes de continuar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
@@ -202,7 +197,7 @@ import EDD.Grafo;
                 }
             }
         } catch (ClassNotFoundException ex) {
-            // Reemplazado java.util.logging.Logger con System.err.println
+            
             System.err.println("Error: ClassNotFoundException: " + ex.getMessage());
         } catch (InstantiationException ex) {
             System.err.println("Error: InstantiationException: " + ex.getMessage());
@@ -213,7 +208,7 @@ import EDD.Grafo;
         }
         //</editor-fold>
 
-        /* Create and display the form */
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Cargar().setVisible(true);
@@ -223,13 +218,6 @@ import EDD.Grafo;
     
                                                       
 
-    /**
-     * Acción realizada al presionar el botón "Continuar al Menú".
-     * Oculta la ventana actual y muestra la ventana del Menú principal,
-     * pasando los datos cargados.
-     * @param evt el evento de acción
-     */
-   
 
     /**
      * Lee el contenido de un archivo de texto para extraer el diccionario y el tablero.
@@ -246,7 +234,7 @@ import EDD.Grafo;
     boolean inTab = false;
 
     StringBuilder diccionarioContent = new StringBuilder();
-    String tableroContentLine = null; // Para almacenar la única línea del tablero
+    String tableroContentLine = null; //
 
     try {
         br = new BufferedReader(new FileReader(archivo));
@@ -271,7 +259,7 @@ import EDD.Grafo;
             } else if (line.equals("tab")) {
                 inTab = true;
                 inDic = false;
-                tableroContentLine = null; // Reiniciar por si se lee más de una vez
+                tableroContentLine = null; 
                 System.out.println("DEBUG: Entrando en sección tab.");
                 continue;
             } else if (line.equals("/tab")) {
@@ -280,22 +268,20 @@ import EDD.Grafo;
                 continue;
             }
 
-            // Procesar la línea según la sección activa
+           
             if (inDic) {
                 diccionarioContent.append(line).append("\n");
             } else if (inTab) {
-                // Según tus instrucciones, el tablero es UNA SOLA LÍNEA de 16 caracteres separados por comas
+               
                 if (tableroContentLine != null) {
                     throw new Exception("Se encontró más de una línea de tablero dentro de la sección 'tab'.");
                 }
-                tableroContentLine = line; // Solo almacenar la línea, no procesar aún
-                System.out.println("DEBUG: Contenido de tablero leido (temporal): [" + tableroContentLine + "]"); // Debug para ver lo que se lee
+                tableroContentLine = line; 
+                System.out.println("DEBUG: Contenido de tablero leido (temporal): [" + tableroContentLine + "]");
             }
         }
 
-        // --- Post-procesamiento de los datos recolectados (FUERA DEL BUCLE WHILE) ---
-
-        // 1. Procesar el diccionario
+       
         String dicRaw = diccionarioContent.toString().trim();
         if (!dicRaw.isEmpty()) {
             String[] tempDic = new String[contarLineas(dicRaw)];
@@ -319,17 +305,17 @@ import EDD.Grafo;
             this.diccionario = new String[0];
         }
 
-        // 2. Procesar el tablero
+        
         if (tableroContentLine == null || tableroContentLine.isEmpty()) {
-            throw new Exception("La sección 'tab' del archivo no contiene datos de tablero."); // Este es el error que te está dando.
+            throw new Exception("La sección 'tab' del archivo no contiene datos de tablero.");
         }
         
-        System.out.println("DEBUG: Llamando splitCustom con la línea final del tablero: [" + tableroContentLine + "]"); // Debug 7
-        String[] letrasArray = splitCustom(tableroContentLine, ','); // Aquí se debe dividir la cadena.
+        System.out.println("DEBUG: Llamando splitCustom con la línea final del tablero: [" + tableroContentLine + "]"); 
+        String[] letrasArray = splitCustom(tableroContentLine, ','); 
         
-        System.out.println("DEBUG: splitCustom devolvió " + letrasArray.length + " elementos."); // Debug 8: LONGITUD CLAVE
+        System.out.println("DEBUG: splitCustom devolvió " + letrasArray.length + " elementos."); 
         if (letrasArray.length > 0) {
-            System.out.println("DEBUG: Primer elemento de letrasArray: [" + letrasArray[0] + "]"); // Debug 9
+            System.out.println("DEBUG: Primer elemento de letrasArray: [" + letrasArray[0] + "]");
         }
 
         int expectedSize = 16;
@@ -339,7 +325,7 @@ import EDD.Grafo;
         this.tablero = new char[rows][cols];
 
         if (letrasArray.length != expectedSize) {
-            throw new Exception("El tablero no tiene " + expectedSize + " letras (4x4). Se encontraron " + letrasArray.length + "."); // Este es el otro error que te dio ("Se encontraron 1").
+            throw new Exception("El tablero no tiene " + expectedSize + " letras (4x4). Se encontraron " + letrasArray.length + "."); 
         }
 
         for (int i = 0; i < expectedSize; i++) {
@@ -350,7 +336,7 @@ import EDD.Grafo;
             }
         }
         
-        // 3. Construir el grafo
+        
         construirGrafo();
 
     } finally {
@@ -383,7 +369,7 @@ import EDD.Grafo;
                 start = i + 1;
             }
         }
-        // Add the last element after the last delimiter
+       
         result[currentElement] = text.substring(start).trim();
         return result;
     }
@@ -410,32 +396,28 @@ import EDD.Grafo;
         return count;
     }
 
-    /**
-     * Builds the undirected graph from the 4x4 board.
-     * Each cell of the board is a vertex, and adjacent cells
-     * (horizontal, vertical, diagonal) have an edge.
-     */
+    
     private void construirGrafo() {
-        this.grafo = new Grafo(16); // 4x4 board has 16 vertices
+        this.grafo = new Grafo(16);
 
-        // Directions to move (horizontal, vertical, diagonal)
-        int[] dr = {-1, -1, -1, 0, 0, 1, 1, 1}; // Row changes
-        int[] dc = {-1, 0, 1, -1, 1, -1, 0, 1}; // Column changes
+        
+        int[] dr = {-1, -1, -1, 0, 0, 1, 1, 1}; 
+        int[] dc = {-1, 0, 1, -1, 1, -1, 0, 1}; 
 
-        int rows = 4; // Hardcoded 4x4 as per your instructions
-        int cols = 4; // Hardcoded 4x4 as per your instructions
+        int rows = 4;
+        int cols = 4; 
 
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                int u = r * cols + c; // Calculate the index of the current vertex (0-15)
+                int u = r * cols + c;
 
-                for (int i = 0; i < 8; i++) { // Iterate over the 8 possible directions
+                for (int i = 0; i < 8; i++) { 
                     int newR = r + dr[i];
                     int newC = c + dc[i];
 
-                    // Check if the new neighbor is within the board limits
+                   
                     if (newR >= 0 && newR < rows && newC >= 0 && newC < cols) {
-                        int v = newR * cols + newC; // Calculate the index of the neighbor vertex
+                        int v = newR * cols + newC; 
                         grafo.agregarArista(u, v);
                     }
                 }
@@ -443,9 +425,7 @@ import EDD.Grafo;
         }
     }
 
-    /**
-     * Displays the board content in the corresponding JTextArea.
-     */
+    
     private void mostrarTableroEnGUI() {
         StringBuilder sb = new StringBuilder();
         if (tablero != null) {
@@ -459,9 +439,6 @@ import EDD.Grafo;
         textAreaTablero.setText(sb.toString());
     }
 
-    /**
-     * Displays the dictionary content in the corresponding JTextArea.
-     */
     private void mostrarDiccionarioEnGUI() {
         StringBuilder sb = new StringBuilder();
         if (diccionario != null) {
