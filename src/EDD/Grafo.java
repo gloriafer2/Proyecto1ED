@@ -80,57 +80,36 @@ package EDD;
      * @return true si la 'palabra' se encuentra a partir de la celda (currentRow, currentCol), false en caso contrario.
      */
     public boolean buscarPalabraEnCelda(String palabra, int currentRow, int currentCol, boolean[][] visited, int charIndex, Grafo grafo, String[] diccionario, char[][] tablero) {
-       
-        if (charIndex == palabra.length()) {
-            return true;
-        }
-
-        if (currentRow < 0 || currentRow >= 4 || currentCol < 0 || currentCol >= 4 ||
-            visited[currentRow][currentCol] || Character.toUpperCase(tablero[currentRow][currentCol]) != palabra.charAt(charIndex)) {
-            return false;
-        }
-
-  
-        visited[currentRow][currentCol] = true;
-
-        // Convierte las coordenadas (fila, columna) de la celda actual a un índice de vértice del grafo (0-15).
-        int currentVertex = currentRow * 4 + currentCol;
-
-        for (int neighborVertex = 0; neighborVertex < 16; neighborVertex++) {
-           
-            if (grafo.existeArista(currentVertex, neighborVertex)) {
-                int nextRow = neighborVertex / 4;
-                int nextCol = neighborVertex % 4;
-
-          
-                if (this.buscarPalabraEnCelda(palabra, nextRow, nextCol, visited, charIndex + 1, grafo, diccionario, tablero)) {
-                    return true; 
-                }
-            }
-        }
-        System.out.println("DEBUG (BuscarPalabra-Constructor): Grafo recibido es null? " + (grafo == null));
-        System.out.println("DEBUG (BuscarPalabra-Constructor): Diccionario recibido es null? " + (diccionario == null));
-        System.out.println("DEBUG (BuscarPalabra-Constructor): Tablero recibido es null? " + (tablero == null));
-        if (diccionario != null && diccionario.length > 0) {
-            System.out.println("DEBUG (BuscarPalabra-Constructor): Cantidad de palabras en diccionario: " + diccionario.length);
-            System.out.println("DEBUG (BuscarPalabra-Constructor): Primer palabra del diccionario: " + diccionario[0]);
-        }
-        if (tablero != null && tablero.length == 4 && tablero[0].length == 4) {
-            System.out.println("DEBUG (BuscarPalabra-Constructor): Letra en (0,0): " + tablero[0][0]);
-   
-            System.out.println("DEBUG (BuscarPalabra-Constructor): Contenido del tablero:");
-            for (int r = 0; r < 4; r++) {
-                for (int c = 0; c < 4; c++) {
-                    System.out.print(tablero[r][c] + " ");
-                }
-                System.out.println();
-            }
-
-           
-            visited[currentRow][currentCol] = false;
-            return false; 
-        }
-        return false;
-        
+    if (charIndex == palabra.length()) {
+        return true;
     }
-}
+
+    if (currentRow < 0 || currentRow >= 4 || currentCol < 0 || currentCol >= 4 ||
+        visited[currentRow][currentCol] || Character.toUpperCase(tablero[currentRow][currentCol]) != palabra.charAt(charIndex)) {
+        return false;
+    }
+
+   
+    visited[currentRow][currentCol] = true;
+
+    int currentVertex = currentRow * 4 + currentCol;
+
+    for (int neighborVertex = 0; neighborVertex < 16; neighborVertex++) {
+        if (grafo.existeArista(currentVertex, neighborVertex)) {
+            int nextRow = neighborVertex / 4;
+            int nextCol = neighborVertex % 4;
+
+   
+            if (this.buscarPalabraEnCelda(palabra, nextRow, nextCol, visited, charIndex + 1, grafo, diccionario, tablero)) {
+                return true;
+            }
+        }
+    }
+
+    
+    visited[currentRow][currentCol] = false; 
+
+    
+    return false; 
+    }
+   }
