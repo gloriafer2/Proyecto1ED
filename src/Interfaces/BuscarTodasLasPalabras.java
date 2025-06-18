@@ -15,11 +15,14 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
     public static String[] diccionario;
     public static char[][] tablero;
     public static Cargar ventanaCargarOriginal;
+    
     /**
      * Creates new form BuscarTodasLasPalabras
      */
     public BuscarTodasLasPalabras(Grafo g, String[] dict, char[][] tab, Cargar v1) {
         initComponents();
+        this.setLocationRelativeTo(null);
+        this.setResizable(false);
         BuscarTodasLasPalabras.grafo = g; 
         BuscarTodasLasPalabras.diccionario = dict;
         BuscarTodasLasPalabras.tablero = tab;
@@ -101,74 +104,98 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        System.out.println("DEBUG (BuscarPalabra): Iniciando búsqueda de todas las palabras.");
+        System.out.println("DEBUG (BuscarTodasLasPalabras): Iniciando búsqueda de todas las palabras (DFS).");
+        textAreaResultados.setText("Buscando palabras...\n");
 
-       
-        if (this.grafo == null || this.diccionario == null || this.tablero == null || this.diccionario.length == 0) {
-            String errorMsg = "ERROR (BuscarPalabra): Datos incompletos para iniciar la búsqueda.";
-            System.err.println(errorMsg); // Para depuración
-            textAreaResultados.setText(errorMsg + "\nPor favor, asegúrate de cargar el archivo correctamente desde el menú principal.");
+        if (BuscarTodasLasPalabras.grafo == null || BuscarTodasLasPalabras.diccionario == null || BuscarTodasLasPalabras.diccionario.length == 0) {
+            String errorMsg = "ERROR (BuscarTodasLasPalabras): Datos incompletos para iniciar la búsqueda.\n"
+                            + "Asegúrate de cargar el archivo correctamente desde el menú principal.";
+            System.err.println(errorMsg);
+            textAreaResultados.setText(errorMsg);
             jLabelTiempo.setText("Tiempo de búsqueda: Error de datos");
             return;
         }
 
         long startTime = System.currentTimeMillis();
+        StringBuilder resultadosBuilder = new StringBuilder();
 
-        StringBuilder resultadosBuilder = new StringBuilder(); 
+        
+        String[] palabrasEncontradasArray = new String[200]; 
         int palabrasEncontradasCount = 0; 
-       
+        
+        int rows = 4;
+        int cols = 4;
+
         for (int i = 0; i < diccionario.length; i++) {
-            String palabra = diccionario[i];
-            
+            String palabra = diccionario[i]; 
             if (palabra == null || palabra.trim().isEmpty()) {
                 continue;
             }
-            palabra = palabra.trim().toUpperCase(); 
+            palabra = palabra.trim().toUpperCase();
 
-            
             if (palabra.length() < 3) {
-                System.out.println("DEBUG (BuscarPalabra): Palabra '" + palabra + "' ignorada, menos de 3 letras.");
+                System.out.println("DEBUG (BuscarTodasLasPalabras): Palabra '" + palabra + "' ignorada, menos de 3 letras.");
+                continue;
+            }
+
+          
+            boolean alreadyFound = false;
+            for (int k = 0; k < palabrasEncontradasCount; k++) {
+              
+                if (palabrasEncontradasArray[k] != null && palabrasEncontradasArray[k].equals(palabra)) {
+                    alreadyFound = true;
+                    break;
+                }
+            }
+            if (alreadyFound) {
+                System.out.println("DEBUG (BuscarTodasLasPalabras): Palabra '" + palabra + "' ya encontrada, saltando.");
                 continue; 
             }
 
-            System.out.println("DEBUG (BuscarPalabra): Buscando palabra: " + palabra);
+            System.out.println("DEBUG (BuscarTodasLasPalabras): Buscando palabra: " + palabra);
 
-            boolean foundInBoard = false; 
-            
-            for (int r = 0; r < 4; r++) { 
-                for (int c = 0; c < 4; c++) { 
-                   
-                    boolean[][] visited = new boolean[4][4];
-                   
-                    if (grafo.buscarPalabraEnCelda(palabra, r, c, visited, 0, this.grafo, this.diccionario, this.tablero)) {
-                        palabrasEncontradasCount++; 
-                        resultadosBuilder.append("- ").append(palabra).append("\n"); 
-                        System.out.println("DEBUG (BuscarPalabra): Palabra encontrada: " + palabra);
-                        foundInBoard = true; 
+            boolean foundCurrentWordInBoard = false; 
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < cols; c++) {
+                    boolean[][] visited = new boolean[rows][cols];
+
+                    if (grafo.buscarPalabraEnCelda(palabra, r, c, visited, 0)) {
+                      
+                        if (palabrasEncontradasCount < palabrasEncontradasArray.length) {
+                            palabrasEncontradasArray[palabrasEncontradasCount] = palabra;
+                            palabrasEncontradasCount++;
+                        } else {
+                            System.err.println("Advertencia: El arreglo de palabras encontradas está lleno. No se pueden almacenar más palabras.");
+                          
+                        }
+                        foundCurrentWordInBoard = true;
+                        System.out.println("DEBUG (BuscarTodasLasPalabras): Palabra encontrada: " + palabra);
                         break; 
                     }
                 }
-                if (foundInBoard) {
+                if (foundCurrentWordInBoard) {
                     break; 
                 }
             }
         }
 
-        long endTime = System.currentTimeMillis(); 
+        long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
 
-        
+       
         if (palabrasEncontradasCount == 0) {
             textAreaResultados.setText("No se encontraron palabras del diccionario en la sopa de letras.");
         } else {
-            textAreaResultados.setText("Palabras encontradas (" + palabrasEncontradasCount + "):\n" + resultadosBuilder.toString());
+            resultadosBuilder.append("Palabras encontradas (").append(palabrasEncontradasCount).append("):\n");
+            for (int k = 0; k < palabrasEncontradasCount; k++) {
+                resultadosBuilder.append("- ").append(palabrasEncontradasArray[k]).append("\n");
+            }
+            textAreaResultados.setText(resultadosBuilder.toString());
         }
-        jLabelTiempo.setText("Tiempo de búsqueda: " + duration + " ms"); 
+        jLabelTiempo.setText("Tiempo de búsqueda: " + duration + " ms");
 
-        System.out.println("DEBUG (BuscarPalabra): Resultados finales:\n" + textAreaResultados.getText());
-        System.out.println("DEBUG (BuscarPalabra): Tiempo total de búsqueda: " + duration + " ms");
-    
-
+        System.out.println("DEBUG (BuscarTodasLasPalabras): Resultados finales:\n" + textAreaResultados.getText());
+        System.out.println("DEBUG (BuscarTodasLasPalabras): Tiempo total de búsqueda: " + duration + " ms");
     
     }//GEN-LAST:event_jButton1ActionPerformed
     

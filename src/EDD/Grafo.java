@@ -9,107 +9,158 @@ package EDD;
  *
  * @author Gloria
  */
-   public class Grafo {
-    private boolean[][] matrizAdyacencia; 
-    private int numVertices;               // Número total de vértices en el grafo
+  public class Grafo {
+    private boolean[][] matrizAdyacencia;
+    private int cantidadVertices;
+    private char[][] tableroDeSopaLetras; 
+    private int numFilasTablero;       
+    private int numColumnasTablero;       
+
     
-    /**
-     * Constructor para crear un nuevo Grafo con un número específico de vértices.
-     * @param numVertices El número de vértices en el grafo.
-     */
-    public Grafo(int numVertices) {
-        this.numVertices = numVertices;
-        this.matrizAdyacencia = new boolean[numVertices][numVertices];
+
+    public Grafo(char[][] tablero, int filas, int columnas) {
+        this.numFilasTablero = filas;
+        this.numColumnasTablero = columnas;
+        this.cantidadVertices = filas * columnas; // El número total de vértices es el área del tablero
+        this.matrizAdyacencia = new boolean[cantidadVertices][cantidadVertices];
+        this.tableroDeSopaLetras = tablero;
+        construirMatrizAdyacencia(); // Llama al método para establecer las conexiones
     }
 
-    /**
-     * Agrega una arista entre dos vértices. Dado que es un grafo no dirigido,
-     * la arista se añade en ambas direcciones.
-     * @param u El primer vértice.
-     * @param v El segundo vértice.
-     */
-    public void agregarArista(int u, int v) {
-       
-        if (u >= 0 && u < numVertices && v >= 0 && v < numVertices) {
-            matrizAdyacencia[u][v] = true;
-            matrizAdyacencia[v][u] = true; 
+   
+    
+    public void agregarArista(int verticeOrigen, int verticeDestino) {
+        if (verticeOrigen >= 0 && verticeOrigen < cantidadVertices && verticeDestino >= 0 && verticeDestino < cantidadVertices) {
+            matrizAdyacencia[verticeOrigen][verticeDestino] = true;
+            matrizAdyacencia[verticeDestino][verticeOrigen] = true; // Para grafo no dirigido
         } else {
-            System.err.println("Error: Vértices fuera de rango.");
+            System.err.println("Error: Vértices fuera de rango en agregarArista.");
         }
     }
 
     /**
-    
-     * @param u El primer vértice.
-     * @param v El segundo vértice.
-     * @return true si existe una arista entre u y v, false en caso contrario.
+     * Verifica si existe una arista entre dos vértices.
+     * @param verticeOrigen El primer vértice.
+     * @param verticeDestino El segundo vértice.
+     * @return true si existe una arista entre verticeOrigen y verticeDestino, false en caso contrario.
      */
-    public boolean existeArista(int u, int v) {
-        if (u >= 0 && u < numVertices && v >= 0 && v < numVertices) {
-            return matrizAdyacencia[u][v];
+    public boolean existeArista(int verticeOrigen, int verticeDestino) {
+        if (verticeOrigen >= 0 && verticeOrigen < cantidadVertices && verticeDestino >= 0 && verticeDestino < cantidadVertices) {
+            return matrizAdyacencia[verticeOrigen][verticeDestino];
         }
         return false;
     }
 
-    /**
-     * Obtiene el número total de vértices en el grafo.
-     * @return El número de vértices.
-     */
-    public int getNumVertices() {
-        return numVertices;
+    public int getCantidadVertices() {
+        return cantidadVertices;
     }
 
-    public boolean[] getAdyacentes(int u) {
-        if (u >= 0 && u < numVertices) {
-            return matrizAdyacencia[u]; // Retorna la fila completa de la matriz
+ 
+    public int getNumFilasTablero() {
+        return numFilasTablero;
+    }
+
+    public int getNumColumnasTablero() {
+        return numColumnasTablero;
+    }
+
+    /**
+     * Obtiene la fila de adyacencia para un vértice dado.
+     * Esto te daría una vista de qué vértices son directamente accesibles desde 'vertice'.
+     * @param vertice El vértice del que se desean obtener los adyacentes.
+     * @return Un arreglo booleano donde true indica una conexión.
+     */
+    public boolean[] getAdyacentes(int vertice) {
+        if (vertice >= 0 && vertice < cantidadVertices) {
+            return matrizAdyacencia[vertice]; // Retorna la fila completa de la matriz
         }
-        return new boolean[numVertices]; // Retorna un arreglo vacío si el vértice es inválido
+        return new boolean[cantidadVertices]; // Retorna un arreglo vacío si el vértice es inválido
     }
+
     
-    /**
-     * Implementa el algoritmo de búsqueda DFS o backtracking
-     * para encontrar una secuencia de letras que formen una palabra en el tablero.
-     * Se mueve recursivamente a celdas adyacentes hasta encontrar la palabra completa.
-     *
-     * @param palabra La palabra (en mayúsculas) que se está buscando.
-     * @param currentRow Fila actual en la que se encuentra la búsqueda.
-     * @param currentCol Columna actual en la que se encuentra la búsqueda.
-     * @param visited Matriz booleana para marcar las celdas ya visitadas en la ruta actual de la palabra.
-     * Esto evita ciclos y el uso repetido de la misma letra para la misma palabra.
-     * @param charIndex El índice de la letra actual que se busca en la 'palabra' (ej. 0 para la primera letra).
-     * @return true si la 'palabra' se encuentra a partir de la celda (currentRow, currentCol), false en caso contrario.
-     */
-    public boolean buscarPalabraEnCelda(String palabra, int currentRow, int currentCol, boolean[][] visited, int charIndex, Grafo grafo, String[] diccionario, char[][] tablero) {
-    if (charIndex == palabra.length()) {
-        return true;
-    }
+    private void construirMatrizAdyacencia() {
+       
+        int[] despFilas = {-1, -1, -1, 0, 0, 1, 1, 1}; // Cambios en fila
+        int[] despColumnas = {-1, 0, 1, -1, 1, -1, 0, 1}; // Cambios en columna
 
-    if (currentRow < 0 || currentRow >= 4 || currentCol < 0 || currentCol >= 4 ||
-        visited[currentRow][currentCol] || Character.toUpperCase(tablero[currentRow][currentCol]) != palabra.charAt(charIndex)) {
-        return false;
-    }
+        for (int fila = 0; fila < numFilasTablero; fila++) {
+            for (int columna = 0; columna < numColumnasTablero; columna++) {
+               
+                int verticeActual = fila * numColumnasTablero + columna;
 
-   
-    visited[currentRow][currentCol] = true;
+                for (int i = 0; i < 8; i++) { 
+                    int filaVecino = fila + despFilas[i]; 
+                    int columnaVecino = columna + despColumnas[i]; 
+                    
+                    if (filaVecino >= 0 && filaVecino < numFilasTablero &&
+                        columnaVecino >= 0 && columnaVecino < numColumnasTablero) {
+                        
+                        int verticeVecino = filaVecino * numColumnasTablero + columnaVecino;
 
-    int currentVertex = currentRow * 4 + currentCol;
-
-    for (int neighborVertex = 0; neighborVertex < 16; neighborVertex++) {
-        if (grafo.existeArista(currentVertex, neighborVertex)) {
-            int nextRow = neighborVertex / 4;
-            int nextCol = neighborVertex % 4;
-
-   
-            if (this.buscarPalabraEnCelda(palabra, nextRow, nextCol, visited, charIndex + 1, grafo, diccionario, tablero)) {
-                return true;
+                       
+                        agregarArista(verticeActual, verticeVecino);
+                    }
+                }
             }
         }
     }
 
-    
-    visited[currentRow][currentCol] = false; 
+   
+    public boolean buscarPalabraEnCelda(String palabraBuscada, int filaActual, int columnaActual, boolean[][] celdasVisitadas, int indiceLetra) {
+        // Caso base 1: La palabra completa ha sido encontrada (se ha llegado al final de la palabra)
+        if (indiceLetra == palabraBuscada.length()) {
+            return true;
+        }
 
-    
-    return false; 
+        if (filaActual < 0 || filaActual >= numFilasTablero ||
+            columnaActual < 0 || columnaActual >= numColumnasTablero ||
+            celdasVisitadas[filaActual][columnaActual] ||
+            Character.toUpperCase(this.tableroDeSopaLetras[filaActual][columnaActual]) != palabraBuscada.charAt(indiceLetra)) {
+            return false;
+        }
+
+        
+        celdasVisitadas[filaActual][columnaActual] = true;
+
+        
+        int verticeActual = filaActual * numColumnasTablero + columnaActual;
+
+        
+        for (int verticeVecino = 0; verticeVecino < cantidadVertices; verticeVecino++) {
+           
+            if (existeArista(verticeActual, verticeVecino)) {
+                
+                int proximaFila = verticeVecino / numColumnasTablero;
+                int proximaColumna = verticeVecino % numColumnasTablero;
+
+               
+                if (buscarPalabraEnCelda(palabraBuscada, proximaFila, proximaColumna, celdasVisitadas, indiceLetra + 1)) {
+                   
+                    return true;
+                }
+            }
+        }
+
+       
+        celdasVisitadas[filaActual][columnaActual] = false;
+
+     
+        return false;
     }
-   }
+
+ 
+    public void imprimirMatrizAdyacencia() {
+        System.out.println("DEBUG: Matriz de Adyacencia (" + cantidadVertices + "x" + cantidadVertices + "):");
+        for (int i = 0; i < cantidadVertices; i++) {
+            System.out.print(String.format("%2d: ", i)); // Formato para alinear números de dos dígitos
+            for (int j = 0; j < cantidadVertices; j++) {
+                System.out.print(matrizAdyacencia[i][j] ? "1 " : "0 ");
+            }
+            System.out.println();
+        }
+    }
+ }
+
+
+
+

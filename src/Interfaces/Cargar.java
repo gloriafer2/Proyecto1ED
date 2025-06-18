@@ -215,144 +215,128 @@ import EDD.Grafo;
             }
         });
     }
-    
-                                                      
+    private void leerArchivoDeConfiguracion(File archivo) throws IOException, Exception {
+        BufferedReader br = null;
+        String line;
 
+        boolean inDic = false;
+        boolean inTab = false;
 
-    /**
-     * Lee el contenido de un archivo de texto para extraer el diccionario y el tablero.
-     * Procesa las etiquetas "dic", "/dic", "tab", "/tab" para separar la información.
-     * @param archivo El archivo a leer.
-     * @throws IOException Si ocurre un error de lectura.
-     * @throws Exception Si el formato del tablero es incorrecto.
-     */
-  private void leerArchivoDeConfiguracion(File archivo) throws IOException, Exception {
-    BufferedReader br = null;
-    String line;
+        StringBuilder diccionarioContent = new StringBuilder();
+        String tableroContentLine = null;
 
-    boolean inDic = false;
-    boolean inTab = false;
+        try {
+            br = new BufferedReader(new FileReader(archivo));
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
 
-    StringBuilder diccionarioContent = new StringBuilder();
-    String tableroContentLine = null; //
+                if (line.isEmpty()) {
+                    continue;
+                }
 
-    try {
-        br = new BufferedReader(new FileReader(archivo));
-        while ((line = br.readLine()) != null) {
-            line = line.trim();
+                System.out.println("DEBUG: Leyendo línea: [" + line + "]");
 
-            if (line.isEmpty()) {
-                continue;
+                if (line.equals("dic")) {
+                    inDic = true;
+                    inTab = false;
+                    System.out.println("DEBUG: Entrando en sección dic.");
+                    continue;
+                } else if (line.equals("/dic")) {
+                    inDic = false;
+                    System.out.println("DEBUG: Saliendo de sección dic.");
+                    continue;
+                } else if (line.equals("tab")) {
+                    inTab = true;
+                    inDic = false;
+                    tableroContentLine = null; 
+                    System.out.println("DEBUG: Entrando en sección tab.");
+                    continue;
+                } else if (line.equals("/tab")) {
+                    inTab = false;
+                    System.out.println("DEBUG: Saliendo de sección tab.");
+                    continue;
+                }
+
+                if (inDic) {
+                    diccionarioContent.append(line).append("\n");
+                } else if (inTab) {
+                    if (tableroContentLine != null) {
+                        throw new Exception("Se encontró más de una línea de tablero dentro de la sección 'tab'.");
+                    }
+                    tableroContentLine = line;
+                    System.out.println("DEBUG: Contenido de tablero leido (temporal): [" + tableroContentLine + "]");
+                }
             }
 
-            System.out.println("DEBUG: Leyendo línea: [" + line + "]"); // Debug 1
+            
+            String dicRaw = diccionarioContent.toString().trim();
+            if (!dicRaw.isEmpty()) {
+               
+                String[] tempDic = splitCustom(dicRaw, '\n');
+                
+                int validWordCount = 0;
+                for (String s : tempDic) {
+                    if (!s.trim().isEmpty()) {
+                        validWordCount++;
+                    }
+                }
+                this.diccionario = new String[validWordCount];
+                int currentIdx = 0;
+                for (String s : tempDic) {
+                    if (!s.trim().isEmpty()) {
+                        this.diccionario[currentIdx++] = s.trim();
+                    }
+                }
 
-            if (line.equals("dic")) {
-                inDic = true;
-                inTab = false;
-                System.out.println("DEBUG: Entrando en sección dic.");
-                continue;
-            } else if (line.equals("/dic")) {
-                inDic = false;
-                System.out.println("DEBUG: Saliendo de sección dic.");
-                continue;
-            } else if (line.equals("tab")) {
-                inTab = true;
-                inDic = false;
-                tableroContentLine = null; 
-                System.out.println("DEBUG: Entrando en sección tab.");
-                continue;
-            } else if (line.equals("/tab")) {
-                inTab = false;
-                System.out.println("DEBUG: Saliendo de sección tab.");
-                continue;
+            } else {
+                this.diccionario = new String[0];
             }
+
+          
+            if (tableroContentLine == null || tableroContentLine.isEmpty()) {
+                throw new Exception("La sección 'tab' del archivo no contiene datos de tablero.");
+            }
+
+            System.out.println("DEBUG: Llamando splitCustom con la línea final del tablero: [" + tableroContentLine + "]");
+            String[] letrasArray = splitCustom(tableroContentLine, ',');
+
+            System.out.println("DEBUG: splitCustom devolvió " + letrasArray.length + " elementos.");
+            if (letrasArray.length > 0) {
+                System.out.println("DEBUG: Primer elemento de letrasArray: [" + letrasArray[0] + "]");
+            }
+
+            int expectedSize = 16;
+            int rows = 4;
+            int cols = 4;
+
+            this.tablero = new char[rows][cols];
+
+            if (letrasArray.length != expectedSize) {
+                throw new Exception("El tablero no tiene " + expectedSize + " letras (4x4). Se encontraron " + letrasArray.length + ".");
+            }
+
+            for (int i = 0; i < expectedSize; i++) {
+               
+                if (letrasArray[i] != null && !letrasArray[i].trim().isEmpty()) { 
+                    this.tablero[i / cols][i % cols] = Character.toUpperCase(letrasArray[i].trim().charAt(0)); 
+                } else {
+                    throw new Exception("Caracter vacío o nulo encontrado en el tablero en la posición " + i + ".");
+                }
+            }
+
+          
+            this.grafo = new EDD.Grafo(this.tablero, rows, cols); 
 
            
-            if (inDic) {
-                diccionarioContent.append(line).append("\n");
-            } else if (inTab) {
-               
-                if (tableroContentLine != null) {
-                    throw new Exception("Se encontró más de una línea de tablero dentro de la sección 'tab'.");
-                }
-                tableroContentLine = line; 
-                System.out.println("DEBUG: Contenido de tablero leido (temporal): [" + tableroContentLine + "]");
+        } finally {
+            if (br != null) {
+                br.close();
             }
-        }
-
-       
-        String dicRaw = diccionarioContent.toString().trim();
-        if (!dicRaw.isEmpty()) {
-            String[] tempDic = new String[contarLineas(dicRaw)];
-            int index = 0;
-            int start = 0;
-            for (int i = 0; i < dicRaw.length(); i++) {
-                if (dicRaw.charAt(i) == '\n') {
-                    tempDic[index++] = dicRaw.substring(start, i).trim();
-                    start = i + 1;
-                }
-            }
-            if (start < dicRaw.length()) {
-                tempDic[index++] = dicRaw.substring(start).trim();
-            }
-            String[] finalDic = new String[index];
-            for(int i = 0; i < index; i++){
-                finalDic[i] = tempDic[i];
-            }
-            this.diccionario = finalDic;
-        } else {
-            this.diccionario = new String[0];
-        }
-
-        
-        if (tableroContentLine == null || tableroContentLine.isEmpty()) {
-            throw new Exception("La sección 'tab' del archivo no contiene datos de tablero.");
-        }
-        
-        System.out.println("DEBUG: Llamando splitCustom con la línea final del tablero: [" + tableroContentLine + "]"); 
-        String[] letrasArray = splitCustom(tableroContentLine, ','); 
-        
-        System.out.println("DEBUG: splitCustom devolvió " + letrasArray.length + " elementos."); 
-        if (letrasArray.length > 0) {
-            System.out.println("DEBUG: Primer elemento de letrasArray: [" + letrasArray[0] + "]");
-        }
-
-        int expectedSize = 16;
-        int rows = 4;
-        int cols = 4;
-
-        this.tablero = new char[rows][cols];
-
-        if (letrasArray.length != expectedSize) {
-            throw new Exception("El tablero no tiene " + expectedSize + " letras (4x4). Se encontraron " + letrasArray.length + "."); 
-        }
-
-        for (int i = 0; i < expectedSize; i++) {
-            if (letrasArray[i] != null && !letrasArray[i].isEmpty()) {
-                this.tablero[i / cols][i % cols] = letrasArray[i].charAt(0);
-            } else {
-                throw new Exception("Caracter vacío o nulo encontrado en el tablero en la posición " + i + ".");
-            }
-        }
-        
-        
-        construirGrafo();
-
-    } finally {
-        if (br != null) {
-            br.close();
         }
     }
-}
 
-    /**
-     * Implementación básica de split para String sin usar java.util.String.split().
-     * Separa una cadena por un delimitador específico.
-     * @param text La cadena a separar.
-     * @param delimiter El carácter delimitador.
-     * @return Un arreglo de cadenas resultantes.
-     */
+    
+    
     private String[] splitCustom(String text, char delimiter) {
         int count = 0;
         for (int i = 0; i < text.length(); i++) {
@@ -369,16 +353,12 @@ import EDD.Grafo;
                 start = i + 1;
             }
         }
-       
+
         result[currentElement] = text.substring(start).trim();
         return result;
     }
-    
-    /**
-     * Counts the number of lines in a text.
-     * @param texto The text to count lines in.
-     * @return The number of lines.
-     */
+
+                                                      
     private int contarLineas(String texto) {
         if (texto == null || texto.isEmpty()) {
             return 0;
@@ -397,40 +377,13 @@ import EDD.Grafo;
     }
 
     
-    private void construirGrafo() {
-        this.grafo = new Grafo(16);
-
-        
-        int[] dr = {-1, -1, -1, 0, 0, 1, 1, 1}; 
-        int[] dc = {-1, 0, 1, -1, 1, -1, 0, 1}; 
-
-        int rows = 4;
-        int cols = 4; 
-
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                int u = r * cols + c;
-
-                for (int i = 0; i < 8; i++) { 
-                    int newR = r + dr[i];
-                    int newC = c + dc[i];
-
-                   
-                    if (newR >= 0 && newR < rows && newC >= 0 && newC < cols) {
-                        int v = newR * cols + newC; 
-                        grafo.agregarArista(u, v);
-                    }
-                }
-            }
-        }
-    }
 
     
-    private void mostrarTableroEnGUI() {
+     private void mostrarTableroEnGUI() {
         StringBuilder sb = new StringBuilder();
         if (tablero != null) {
-            for (int r = 0; r < 4; r++) {
-                for (int c = 0; c < 4; c++) {
+            for (int r = 0; r < tablero.length; r++) { 
+                for (int c = 0; c < tablero[0].length; c++) { 
                     sb.append(tablero[r][c]).append(" ");
                 }
                 sb.append("\n");
