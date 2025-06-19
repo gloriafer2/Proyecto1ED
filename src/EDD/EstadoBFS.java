@@ -12,12 +12,18 @@ public class EstadoBFS {
     private int fila;
     private int columna;
     private int indiceLetra;
+    public EstadoBFS anterior;
 
-    public EstadoBFS(int fila, int columna, int indiceLetra) {
+    public EstadoBFS(int fila, int columna, int indiceLetra,EstadoBFS anterior) {
         this.fila = fila;
         this.columna = columna;
         this.indiceLetra = indiceLetra;
+        this.anterior = anterior;
     }
+     public EstadoBFS(int fila, int columna, int indiceLetra) {
+        this(fila, columna, indiceLetra, null); 
+    }
+
 
     public int getFila() {
         return fila;

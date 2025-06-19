@@ -13,10 +13,15 @@ public class EstadoDFS {
     public int fila;
     public int columna;
     public int indicePalabraBuscada;
+    public EstadoDFS anterior;
 
-    public EstadoDFS(int fila, int columna, int indicePalabraBuscada) {
+    public EstadoDFS(int fila, int columna, int indicePalabraBuscada,EstadoDFS anterior) {
         this.fila = fila;
         this.columna = columna;
         this.indicePalabraBuscada = indicePalabraBuscada;
+        this.anterior = anterior;
+    }
+    public EstadoDFS(int fila, int columna, int indicePalabraBuscada) {
+        this(fila, columna, indicePalabraBuscada, null); 
     }
 }

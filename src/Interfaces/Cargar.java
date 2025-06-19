@@ -183,7 +183,7 @@ import EDD.Grafo;
     
     /**
      * Maneja el evento de acción del botón "Continuar".
-     * Verifica si el grafo, tablero y diccionario se han cargado correctamente.
+     * Verifico si el grafo, tablero y diccionario se han cargado correctamente.
      * Si es así, oculta la ventana actual y muestra el `Menu` principal,
      * pasándose a sí mismo (`this`) para que `Menu` pueda acceder a los datos cargados.
      * Si los datos no están completos, muestra una advertencia al usuario.
