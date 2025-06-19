@@ -148,7 +148,14 @@ import EDD.Grafo;
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    /**
+     * Maneja el evento de acción del botón "Cargar Archivo...".
+     * Abre un `JFileChooser` para que el usuario seleccione un archivo.
+     * Si se selecciona un archivo, intenta leerlo y procesar su contenido
+     * para cargar el tablero y el diccionario. Muestra mensajes de éxito o error.
+     *
+     * @param evt El evento de acción generado por el botón.
+     */
     private void botonCargarArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCargarArchivoActionPerformed
        
     JFileChooser fileChooser = new JFileChooser();
@@ -173,6 +180,17 @@ import EDD.Grafo;
     
     }//GEN-LAST:event_botonCargarArchivoActionPerformed
 
+    
+    /**
+     * Maneja el evento de acción del botón "Continuar".
+     * Verifica si el grafo, tablero y diccionario se han cargado correctamente.
+     * Si es así, oculta la ventana actual y muestra el `Menu` principal,
+     * pasándose a sí mismo (`this`) para que `Menu` pueda acceder a los datos cargados.
+     * Si los datos no están completos, muestra una advertencia al usuario.
+     *
+     * @param evt El evento de acción generado por el botón.
+     */
+    
     private void botonContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonContinuarActionPerformed
        
  if (grafo != null && tablero != null && diccionario != null && diccionario.length > 0) {
@@ -184,10 +202,14 @@ import EDD.Grafo;
             JOptionPane.showMessageDialog(this, "Debe cargar un archivo válido antes de continuar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_botonContinuarActionPerformed
-
-    /**
-     * @param args the command line arguments
+/**
+     * Método principal para iniciar la aplicación.
+     * Configura el Look and Feel de la interfaz de usuario a "Nimbus" para una apariencia moderna.
+     * Crea y muestra una nueva instancia de `Cargar` en el Event Dispatch Thread (EDT).
+     *
+     * @param args Los argumentos de la línea de comandos.
      */
+    
     public static void main(String args[]) {
        try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -218,6 +240,19 @@ import EDD.Grafo;
             }
         });
     }
+    
+    
+    
+    /**
+     * Lee y procesa el contenido de un archivo de configuración para extraer
+     * el tablero de la sopa de letras y el diccionario de palabras.
+     * El archivo debe seguir un formato específico con secciones `tab` y `dic`.
+     *
+     * @param archivo El objeto `File` que representa el archivo a leer.
+     * @throws IOException Si ocurre un error de lectura/escritura del archivo.
+     * @throws Exception Si el formato del archivo es incorrecto (ej. tablero no 4x4, datos faltantes).
+     */
+    
     private void leerArchivoDeConfiguracion(File archivo) throws IOException, Exception {
         BufferedReader br = null;
         String line;
@@ -337,7 +372,15 @@ import EDD.Grafo;
             }
         }
     }
-
+    /**
+     * Implementación personalizada del método `split` para dividir una cadena
+     * por un delimitador dado. A diferencia de `String.split()`, esta versión
+     * maneja específicamente el trim de cada elemento y es compatible con el entorno.
+     *
+     * @param text La cadena de texto a dividir.
+     * @param delimiter El carácter delimitador.
+     * @return Un arreglo de Strings que contiene las partes de la cadena dividida.
+     */
     
     
     private String[] splitCustom(String text, char delimiter) {
@@ -360,7 +403,15 @@ import EDD.Grafo;
         result[currentElement] = text.substring(start).trim();
         return result;
     }
-
+    /**
+     * Cuenta el número de líneas no vacías en un texto.
+     * (Este método no parece ser directamente usado en la lógica actual de carga
+     * de diccionario, ya que se usa `splitCustom` con `\n` y luego se filtran vacíos.
+     * Podría ser un remanente o para futuras validaciones).
+     *
+     * @param texto La cadena de texto a analizar.
+     * @return El número de líneas no vacías.
+     */
                                                       
     private int contarLineas(String texto) {
         if (texto == null || texto.isEmpty()) {
@@ -394,7 +445,11 @@ import EDD.Grafo;
         }
         textAreaTablero.setText(sb.toString());
     }
-
+     
+     /**
+     * Muestra el contenido del diccionario en el `textAreaDiccionario` de la GUI.
+     * Cada palabra del diccionario se muestra en una línea separada.
+     */
     private void mostrarDiccionarioEnGUI() {
         StringBuilder sb = new StringBuilder();
         if (diccionario != null) {
