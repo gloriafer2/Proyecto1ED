@@ -43,9 +43,9 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
         jScrollPaneResultados = new javax.swing.JScrollPane();
         textAreaResultados = new javax.swing.JTextArea();
         jLabelTiempo = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        DfsBoton = new javax.swing.JButton();
         botonRegresar = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        BfsBoton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -62,15 +62,15 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
         getContentPane().add(jScrollPaneResultados, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 110, -1, 110));
 
         jLabelTiempo.setText("Tiempo de busqueda");
-        getContentPane().add(jLabelTiempo, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 260, -1, -1));
+        getContentPane().add(jLabelTiempo, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 260, 120, -1));
 
-        jButton1.setText("DFS");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        DfsBoton.setText("DFS");
+        DfsBoton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                DfsBotonActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 70, -1, -1));
+        getContentPane().add(DfsBoton, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 70, -1, -1));
 
         botonRegresar.setText("Regresar");
         botonRegresar.addActionListener(new java.awt.event.ActionListener() {
@@ -80,13 +80,13 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
         });
         getContentPane().add(botonRegresar, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, -1, -1));
 
-        jButton2.setText("BFS");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        BfsBoton.setText("BFS");
+        BfsBoton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                BfsBotonActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 70, -1, -1));
+        getContentPane().add(BfsBoton, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 70, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -99,11 +99,100 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_botonRegresarActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void BfsBotonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BfsBotonActionPerformed
+        System.out.println("DEBUG (BuscarTodasLasPalabras): Iniciando búsqueda de todas las palabras (BFS).");
+        textAreaResultados.setText("Buscando palabras (BFS)...\n"); // Mostrar mensaje inicial en el área de texto
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // 1. Validaciones iniciales:
+        //    Asegurarse de que el objeto grafo y el diccionario no sean nulos y estén cargados.
+        if (BuscarTodasLasPalabras.grafo == null || BuscarTodasLasPalabras.diccionario == null || BuscarTodasLasPalabras.diccionario.length == 0) {
+            String mensajeError = "ERROR (BuscarTodasLasPalabras): Datos incompletos para iniciar la búsqueda.\n"
+                                + "Asegúrate de cargar el archivo correctamente desde el menú principal.";
+            System.err.println(mensajeError);
+            textAreaResultados.setText(mensajeError);
+            jLabelTiempo.setText("Tiempo de búsqueda: Error de datos");
+            return; // Salir del método si faltan datos
+        }
+
+        // 2. Inicializar variables para el seguimiento de resultados y tiempo:
+        long tiempoInicio = System.currentTimeMillis(); // Guarda el tiempo actual para calcular la duración
+        StringBuilder constructorResultados = new StringBuilder(); // Para construir el texto final de los resultados de forma eficiente
+
+        // Array para almacenar las palabras encontradas y evitar duplicados en la lista final.
+        // Se inicializa con una capacidad que se espera sea suficiente.
+        String[] arregloPalabrasEncontradas = new String[200];
+        int contadorPalabrasEncontradas = 0; // Contador de palabras únicas encontradas
+
+        // Obtener las dimensiones del tablero desde el objeto grafo, es más robusto.
+        int numFilas = grafo.getNumFilasTablero();
+        int numColumnas = grafo.getNumColumnasTablero();
+
+        // 3. Bucle principal: Iterar por cada palabra en el diccionario.
+        for (int i = 0; i < diccionario.length; i++) {
+            String palabraDiccionario = diccionario[i];
+            
+            // a. Limpieza y validación de la palabra del diccionario:
+            if (palabraDiccionario == null || palabraDiccionario.trim().isEmpty()) {
+                continue; // Saltar palabras nulas o vacías en el diccionario
+            }
+            palabraDiccionario = palabraDiccionario.trim().toUpperCase(); 
+
+            
+            if (palabraDiccionario.length() < 3) {
+                continue;
+            }
+
+            boolean yaEncontrada = false;
+            for (int k = 0; k < contadorPalabrasEncontradas; k++) {
+                if (arregloPalabrasEncontradas[k] != null && arregloPalabrasEncontradas[k].equals(palabraDiccionario)) {
+                    yaEncontrada = true;
+                    break;
+                }
+            }
+            if (yaEncontrada) {
+                continue; // 
+            }
+
+            System.out.println("DEBUG (BuscarTodasLasPalabras): Buscando palabra (BFS): " + palabraDiccionario);
+
+            
+            boolean palabraActualEncontradaEnTablero = false;
+            for (int f = 0; f < numFilas; f++) {
+                for (int c = 0; c < numColumnas; c++) {
+                    if (grafo.buscarPalabraEnCeldaBFS(palabraDiccionario, f, c)) {
+                        if (contadorPalabrasEncontradas < arregloPalabrasEncontradas.length) {
+                            arregloPalabrasEncontradas[contadorPalabrasEncontradas] = palabraDiccionario;
+                            contadorPalabrasEncontradas++;
+                        } else {
+                            System.err.println("Advertencia: El arreglo de palabras encontradas está lleno. No se pueden almacenar más palabras.");
+                        }
+                        palabraActualEncontradaEnTablero = true;
+                        break; 
+                    }
+                }
+                if (palabraActualEncontradaEnTablero) {
+                    break; 
+                }
+            }
+        }
+        long tiempoFin = System.currentTimeMillis();
+        long duracion = tiempoFin - tiempoInicio;
+        if (contadorPalabrasEncontradas == 0) {
+            textAreaResultados.setText("No se encontraron palabras del diccionario en la sopa de letras usando BFS.");
+        } else {
+            constructorResultados.append("Palabras encontradas (BFS) (").append(contadorPalabrasEncontradas).append("):\n");
+            for (int k = 0; k < contadorPalabrasEncontradas; k++) {
+                constructorResultados.append("- ").append(arregloPalabrasEncontradas[k]).append("\n");
+            }
+            textAreaResultados.setText(constructorResultados.toString());
+        }
+        jLabelTiempo.setText("Tiempo de búsqueda (BFS): " + duracion + " ms");
+
+        System.out.println("DEBUG (BuscarTodasLasPalabras): Resultados finales (BFS):\n" + textAreaResultados.getText());
+        System.out.println("DEBUG (BuscarTodasLasPalabras): Tiempo total de búsqueda (BFS): " + duracion + " ms");
+    }//GEN-LAST:event_BfsBotonActionPerformed
+
+    private void DfsBotonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DfsBotonActionPerformed
         System.out.println("DEBUG (BuscarTodasLasPalabras): Iniciando búsqueda de todas las palabras (DFS).");
         textAreaResultados.setText("Buscando palabras...\n");
 
@@ -123,8 +212,8 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
         String[] palabrasEncontradasArray = new String[200]; 
         int palabrasEncontradasCount = 0; 
         
-        int rows = 4;
-        int cols = 4;
+        int rows = grafo.getNumFilasTablero();
+        int cols = grafo.getNumColumnasTablero();
 
         for (int i = 0; i < diccionario.length; i++) {
             String palabra = diccionario[i]; 
@@ -184,20 +273,23 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
 
        
         if (palabrasEncontradasCount == 0) {
-            textAreaResultados.setText("No se encontraron palabras del diccionario en la sopa de letras.");
-        } else {
-            resultadosBuilder.append("Palabras encontradas (").append(palabrasEncontradasCount).append("):\n");
-            for (int k = 0; k < palabrasEncontradasCount; k++) {
-                resultadosBuilder.append("- ").append(palabrasEncontradasArray[k]).append("\n");
-            }
-            textAreaResultados.setText(resultadosBuilder.toString());
+        textAreaResultados.setText("No se encontraron palabras del diccionario en la sopa de letras.");
+    } else {
+        resultadosBuilder.append("Palabras encontradas (").append(palabrasEncontradasCount).append("):\n");
+        for (int k = 0; k < palabrasEncontradasCount; k++) {
+            resultadosBuilder.append("- ").append(palabrasEncontradasArray[k]).append("\n");
         }
-        jLabelTiempo.setText("Tiempo de búsqueda: " + duration + " ms");
-
-        System.out.println("DEBUG (BuscarTodasLasPalabras): Resultados finales:\n" + textAreaResultados.getText());
-        System.out.println("DEBUG (BuscarTodasLasPalabras): Tiempo total de búsqueda: " + duration + " ms");
+        textAreaResultados.setText(resultadosBuilder.toString());
+    }
     
-    }//GEN-LAST:event_jButton1ActionPerformed
+    jLabelTiempo.setText("Tiempo de búsqueda: " + duration + " ms"); 
+
+    
+
+        
+        
+        
+    }//GEN-LAST:event_DfsBotonActionPerformed
     
     
     
@@ -237,10 +329,10 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BfsBoton;
+    private javax.swing.JButton DfsBoton;
     private javax.swing.JLabel JLabelTitulo;
     private javax.swing.JButton botonRegresar;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabelTiempo;
     private javax.swing.JScrollPane jScrollPaneResultados;
     private javax.swing.JTextArea textAreaResultados;

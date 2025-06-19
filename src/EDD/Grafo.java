@@ -148,11 +148,84 @@ package EDD;
         return false;
     }
 
- 
+
+    
+    
+    public boolean buscarPalabraEnCeldaBFS(String palabraBuscada, int filaInicio, int columnaInicio) {
+        
+        if (filaInicio < 0 || filaInicio >= this.numFilasTablero ||
+            columnaInicio < 0 || columnaInicio >= this.numColumnasTablero ||
+            Character.toUpperCase(this.tableroDeSopaLetras[filaInicio][columnaInicio]) != Character.toUpperCase(palabraBuscada.charAt(0))) {
+            return false;
+        }
+
+       
+        int capacidadCola = this.cantidadVertices * palabraBuscada.length();
+        Cola cola = new Cola(capacidadCola > 0 ? capacidadCola : 16);
+
+        boolean[][] celdasVisitadasEnBusqueda = new boolean[this.numFilasTablero][this.numColumnasTablero];
+
+        // Encolar el estado inicial usando la nueva clase EstadoBFS
+        EstadoBFS estadoInicial = new EstadoBFS(filaInicio, columnaInicio, 0);
+        cola.encolar(estadoInicial);
+        celdasVisitadasEnBusqueda[filaInicio][columnaInicio] = true; 
+
+        
+        while (!cola.estaVacia()) {
+            EstadoBFS estadoActual = (EstadoBFS) cola.desencolar(); 
+            int filaActual = estadoActual.getFila();
+            int columnaActual = estadoActual.getColumna();
+            int indiceLetraActual = estadoActual.getIndiceLetra();
+
+           
+            if (indiceLetraActual == palabraBuscada.length() - 1) {
+                
+                if (Character.toUpperCase(this.tableroDeSopaLetras[filaActual][columnaActual]) == Character.toUpperCase(palabraBuscada.charAt(indiceLetraActual))) {
+                    return true; 
+                }
+            }
+            
+           
+            if (indiceLetraActual + 1 >= palabraBuscada.length()) {
+                 continue; 
+            }
+
+
+            
+            int siguienteIndiceLetra = indiceLetraActual + 1;
+            char letraSiguienteEsperada = Character.toUpperCase(palabraBuscada.charAt(siguienteIndiceLetra));
+
+            
+            int verticeActual = filaActual * numColumnasTablero + columnaActual;
+
+           
+            for (int verticeVecino = 0; verticeVecino < cantidadVertices; verticeVecino++) {
+                if (existeArista(verticeActual, verticeVecino)) { 
+                    int proximaFila = verticeVecino / numColumnasTablero;
+                    int proximaColumna = verticeVecino % numColumnasTablero;
+
+                
+                    if (proximaFila >= 0 && proximaFila < this.numFilasTablero &&
+                        proximaColumna >= 0 && proximaColumna < this.numColumnasTablero &&
+                        !celdasVisitadasEnBusqueda[proximaFila][proximaColumna] &&
+                        Character.toUpperCase(this.tableroDeSopaLetras[proximaFila][proximaColumna]) == letraSiguienteEsperada) {
+
+                        
+                        EstadoBFS siguienteEstado = new EstadoBFS(proximaFila, proximaColumna, siguienteIndiceLetra);
+                        cola.encolar(siguienteEstado);
+                        celdasVisitadasEnBusqueda[proximaFila][proximaColumna] = true; 
+                    }
+                }
+            }
+        }
+        return false; 
+    
+    }
+
     public void imprimirMatrizAdyacencia() {
         System.out.println("DEBUG: Matriz de Adyacencia (" + cantidadVertices + "x" + cantidadVertices + "):");
         for (int i = 0; i < cantidadVertices; i++) {
-            System.out.print(String.format("%2d: ", i)); // Formato para alinear números de dos dígitos
+            System.out.print(String.format("%2d: ", i)); 
             for (int j = 0; j < cantidadVertices; j++) {
                 System.out.print(matrizAdyacencia[i][j] ? "1 " : "0 ");
             }
