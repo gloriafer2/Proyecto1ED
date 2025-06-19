@@ -10,6 +10,11 @@ package EDD;
  * @author Gloria
  */
   public class Grafo {
+    /**
+     * Matriz booleana que almacena las adyacencias entre los vértices.
+     * Si matrizAdyacencia[i][j] es true, existe una arista entre el vértice i y el vértice j.
+     */  
+     
     private boolean[][] matrizAdyacencia;
     private int cantidadVertices;
     private char[][] tableroDeSopaLetras; 
@@ -20,7 +25,14 @@ package EDD;
      private static final int[] despFilas = {-1, -1, -1, 0, 0, 1, 1, 1}; 
     private static final int[] despColumnas = {-1, 0, 1, -1, 1, -1, 0, 1}; 
     
-    
+    /**
+     * Constructor para crear un nuevo Grafo basado en un tablero de sopa de letras.
+     * Inicializa la matriz de adyacencia y construye las conexiones entre las celdas adyacentes.
+     *
+     * @param tablero La matriz de caracteres que representa el tablero de la sopa de letras.
+     * @param filas El número de filas del tablero.
+     * @param columnas El número de columnas del tablero.
+     */
 
     public Grafo(char[][] tablero, int filas, int columnas) {
         this.numFilasTablero = filas;
@@ -31,7 +43,12 @@ package EDD;
         construirMatrizAdyacencia(); // Llama al método para establecer las conexiones
     }
 
-   
+   /**
+     * Agrega una arista no dirigida entre dos vértices en la matriz de adyacencia.
+     *
+     * @param verticeOrigen El índice del primer vértice (0-based).
+     * @param verticeDestino El índice del segundo vértice (0-based).
+     */
     
     public void agregarArista(int verticeOrigen, int verticeDestino) {
         if (verticeOrigen >= 0 && verticeOrigen < cantidadVertices && verticeDestino >= 0 && verticeDestino < cantidadVertices) {
@@ -54,16 +71,32 @@ package EDD;
         }
         return false;
     }
-
+    
+     /**
+     * Obtiene el número total de vértices en el grafo.
+     *
+     * @return El número de vértices.
+     */
     public int getCantidadVertices() {
         return cantidadVertices;
     }
 
- 
+    
+    /**
+     * Obtiene el número de filas del tablero asociado a este grafo.
+     *
+     * @return El número de filas del tablero.
+     */
     public int getNumFilasTablero() {
         return numFilasTablero;
     }
-
+   
+    
+     /**
+     * Obtiene el número de columnas del tablero asociado a este grafo.
+     *
+     * @return El número de columnas del tablero.
+     */
     public int getNumColumnasTablero() {
         return numColumnasTablero;
     }
@@ -81,7 +114,11 @@ package EDD;
         return new boolean[cantidadVertices]; 
     }
 
-    
+      /**
+     * Construye la matriz de adyacencia del grafo.
+     * Cada celda del tablero se conecta con sus 8 vecinas (horizontal, vertical y diagonalmente),
+     * siempre y cuando las celdas vecinas estén dentro de los límites del tablero.
+     */
     private void construirMatrizAdyacencia() {
        
         int[] despFilas = {-1, -1, -1, 0, 0, 1, 1, 1}; 
@@ -107,7 +144,19 @@ package EDD;
             }
         }
     }
-
+    /**
+     * Implementa el algoritmo de búsqueda en profundidad (DFS) de forma iterativa
+     * para encontrar si una palabra puede ser formada en el tablero.
+     * La búsqueda comienza desde una celda específica del tablero.
+     * Utiliza una Pila (Stack) para gestionar el orden de exploración de las celdas.
+     *
+     * @param palabraBuscada La palabra (cadena de caracteres) que se desea encontrar.
+     * @param inicioFila La fila de la celda inicial desde donde se comienza la búsqueda.
+     * @param inicioColumna La columna de la celda inicial desde donde se comienza la búsqueda.
+     * @return true si la palabra es encontrada en el tablero a partir de la celda de inicio, false en caso contrario.
+     * @see EDD.Pila
+     * @see EDD.EstadoDFS
+     */
    
     public boolean buscarPalabraEnCeldaDFS(String palabraBuscada, int inicioFila, int inicioColumna) {
         
@@ -165,7 +214,18 @@ package EDD;
         }
         return false; 
     }
-
+    /**
+     * Implementa el algoritmo de búsqueda en amplitud (BFS) para encontrar si una palabra
+     * puede ser formada en el tablero. La búsqueda comienza desde una celda específica del tablero.
+     * Utiliza una Cola (Queue) para gestionar el orden de exploración de las celdas.
+     *
+     * @param palabraBuscada La palabra (cadena de caracteres) que se desea encontrar.
+     * @param filaInicio La fila de la celda inicial desde donde se comienza la búsqueda.
+     * @param columnaInicio La columna de la celda inicial desde donde se comienza la búsqueda.
+     * @return true si la palabra es encontrada en el tablero a partir de la celda de inicio, false en caso contrario.
+     * @see EDD.Cola
+     * @see EDD.EstadoBFS
+     */
 
     
     
@@ -239,6 +299,11 @@ package EDD;
         return false; 
     
     }
+    /**
+     * Imprime la matriz de adyacencia del grafo en la consola para depuración.
+     * Muestra las conexiones entre todos los vértices.
+     */
+    
 
     public void imprimirMatrizAdyacencia() {
         System.out.println("DEBUG: Matriz de Adyacencia (" + cantidadVertices + "x" + cantidadVertices + "):");
