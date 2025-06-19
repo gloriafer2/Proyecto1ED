@@ -9,61 +9,52 @@ package EDD;
  * @author Gloria
  */
 public class Pila {
-    private int[] elementos; // Array para almacenar los elementos de la pila
-    private int tope;        // Índice del elemento superior de la pila
-    private int capacidad;   // Capacidad máxima de la pila
+    private Object[] elementos;
+    private int tope;
+    private int capacidad;
 
-    /**
-     * Constructor para crear una nueva Pila con una capacidad específica.
-     * @param capacidad La capacidad máxima de la pila.
-     */
     public Pila(int capacidad) {
         this.capacidad = capacidad;
-        this.elementos = new int[capacidad];
-        this.tope = -1; // Usamos -1 para indicar que la pila está vacía inicialmente
+        this.elementos = new Object[capacidad];
+        this.tope = -1; 
     }
 
-    /**
-     
-     * @param elemento El elemento a agregar.
-     * @throws IllegalStateException Si la pila está llena.
-     */
-    public void apilar(int elemento) {
+    public void push(Object elemento) { 
         if (estaLlena()) {
-            throw new IllegalStateException("La pila está llena");
+            System.err.println("Error: La pila está llena. No se puede hacer push.");
+            return;
         }
-        elementos[++tope] = elemento; // Incrementa tope y luego asigna
+        tope++;
+        elementos[tope] = elemento;
     }
 
-    
-     
-    public int desapilar() {
+    public Object pop() { 
         if (estaVacia()) {
-            throw new IllegalStateException("La pila está vacía");
+            System.err.println("Error: La pila está vacía. No se puede hacer pop.");
+            return null;
         }
-        return elementos[tope--]; // Devuelve el elemento y luego decrementa tope
+        Object elemento = elementos[tope];
+        elementos[tope] = null; // Liberar referencia
+        tope--;
+        return elemento;
     }
 
-   
-    public int peek() {
+    public Object peek() { 
         if (estaVacia()) {
-            throw new IllegalStateException("La pila está vacía");
+            return null;
         }
         return elementos[tope];
     }
 
-    
     public boolean estaVacia() {
         return tope == -1;
     }
 
-    
     public boolean estaLlena() {
         return tope == capacidad - 1;
     }
 
-   
-    public int tamano() {
+    public int getTamano() {
         return tope + 1;
     }
 }

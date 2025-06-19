@@ -15,7 +15,11 @@ package EDD;
     private char[][] tableroDeSopaLetras; 
     private int numFilasTablero;       
     private int numColumnasTablero;       
-
+    
+    
+     private static final int[] despFilas = {-1, -1, -1, 0, 0, 1, 1, 1}; 
+    private static final int[] despColumnas = {-1, 0, 1, -1, 1, -1, 0, 1}; 
+    
     
 
     public Grafo(char[][] tablero, int filas, int columnas) {
@@ -32,14 +36,14 @@ package EDD;
     public void agregarArista(int verticeOrigen, int verticeDestino) {
         if (verticeOrigen >= 0 && verticeOrigen < cantidadVertices && verticeDestino >= 0 && verticeDestino < cantidadVertices) {
             matrizAdyacencia[verticeOrigen][verticeDestino] = true;
-            matrizAdyacencia[verticeDestino][verticeOrigen] = true; // Para grafo no dirigido
+            matrizAdyacencia[verticeDestino][verticeOrigen] = true; 
         } else {
             System.err.println("Error: Vértices fuera de rango en agregarArista.");
         }
     }
 
     /**
-     * Verifica si existe una arista entre dos vértices.
+     * Verifico si existe una arista entre dos vértices.
      * @param verticeOrigen El primer vértice.
      * @param verticeDestino El segundo vértice.
      * @return true si existe una arista entre verticeOrigen y verticeDestino, false en caso contrario.
@@ -72,17 +76,16 @@ package EDD;
      */
     public boolean[] getAdyacentes(int vertice) {
         if (vertice >= 0 && vertice < cantidadVertices) {
-            return matrizAdyacencia[vertice]; // Retorna la fila completa de la matriz
+            return matrizAdyacencia[vertice]; 
         }
-        return new boolean[cantidadVertices]; // Retorna un arreglo vacío si el vértice es inválido
+        return new boolean[cantidadVertices]; 
     }
 
     
     private void construirMatrizAdyacencia() {
        
-        int[] despFilas = {-1, -1, -1, 0, 0, 1, 1, 1}; // Cambios en fila
-        int[] despColumnas = {-1, 0, 1, -1, 1, -1, 0, 1}; // Cambios en columna
-
+        int[] despFilas = {-1, -1, -1, 0, 0, 1, 1, 1}; 
+        int[] despColumnas = {-1, 0, 1, -1, 1, -1, 0, 1}; 
         for (int fila = 0; fila < numFilasTablero; fila++) {
             for (int columna = 0; columna < numColumnasTablero; columna++) {
                
@@ -106,46 +109,61 @@ package EDD;
     }
 
    
-    public boolean buscarPalabraEnCelda(String palabraBuscada, int filaActual, int columnaActual, boolean[][] celdasVisitadas, int indiceLetra) {
-        // Caso base 1: La palabra completa ha sido encontrada (se ha llegado al final de la palabra)
-        if (indiceLetra == palabraBuscada.length()) {
-            return true;
-        }
-
-        if (filaActual < 0 || filaActual >= numFilasTablero ||
-            columnaActual < 0 || columnaActual >= numColumnasTablero ||
-            celdasVisitadas[filaActual][columnaActual] ||
-            Character.toUpperCase(this.tableroDeSopaLetras[filaActual][columnaActual]) != palabraBuscada.charAt(indiceLetra)) {
+    public boolean buscarPalabraEnCeldaDFS(String palabraBuscada, int inicioFila, int inicioColumna) {
+        
+        if (palabraBuscada == null || palabraBuscada.isEmpty()) {
             return false;
         }
+        if (inicioFila < 0 || inicioFila >= numFilasTablero ||
+            inicioColumna < 0 || inicioColumna >= numColumnasTablero ||
+            Character.toUpperCase(tableroDeSopaLetras[inicioFila][inicioColumna]) != Character.toUpperCase(palabraBuscada.charAt(0))) {
+            return false; 
+        }
 
-        
-        celdasVisitadas[filaActual][columnaActual] = true;
+        Pila pila = new Pila(numFilasTablero * numColumnasTablero);
+        boolean[][] celdasVisitadas = new boolean[numFilasTablero][numColumnasTablero];
 
-        
-        int verticeActual = filaActual * numColumnasTablero + columnaActual;
+        EstadoDFS estadoInicial = new EstadoDFS(inicioFila, inicioColumna, 0); 
+        pila.push(estadoInicial);
+        celdasVisitadas[inicioFila][inicioColumna] = true;
 
-        
-        for (int verticeVecino = 0; verticeVecino < cantidadVertices; verticeVecino++) {
-           
-            if (existeArista(verticeActual, verticeVecino)) {
-                
-                int proximaFila = verticeVecino / numColumnasTablero;
-                int proximaColumna = verticeVecino % numColumnasTablero;
-
+        while (!pila.estaVacia()) {
+            EstadoDFS actual = (EstadoDFS) pila.pop();
+       
+            if (actual.indicePalabraBuscada == palabraBuscada.length() - 1) {
                
-                if (buscarPalabraEnCelda(palabraBuscada, proximaFila, proximaColumna, celdasVisitadas, indiceLetra + 1)) {
+                if (Character.toUpperCase(tableroDeSopaLetras[actual.fila][actual.columna]) == Character.toUpperCase(palabraBuscada.charAt(actual.indicePalabraBuscada))) {
+                    return true; 
+                }
+            }
+
+         
+            int siguienteIndice = actual.indicePalabraBuscada + 1;
+           
+            if (siguienteIndice >= palabraBuscada.length()) {
+                continue;
+            }
+            
+            char siguienteCaracterEsperado = Character.toUpperCase(palabraBuscada.charAt(siguienteIndice));
+
+            
+            for (int i = 0; i < 8; i++) {
+                int nuevaFila = actual.fila + despFilas[i];     
+                int nuevaColumna = actual.columna + despColumnas[i]; 
+
+                if (nuevaFila >= 0 && nuevaFila < numFilasTablero &&
+                    nuevaColumna >= 0 && nuevaColumna < numColumnasTablero &&
+                    !celdasVisitadas[nuevaFila][nuevaColumna] &&
+                    Character.toUpperCase(tableroDeSopaLetras[nuevaFila][nuevaColumna]) == siguienteCaracterEsperado) {
+
                    
-                    return true;
+                    EstadoDFS nuevoEstado = new EstadoDFS(nuevaFila, nuevaColumna, siguienteIndice);
+                    pila.push(nuevoEstado); 
+                    celdasVisitadas[nuevaFila][nuevaColumna] = true; 
                 }
             }
         }
-
-       
-        celdasVisitadas[filaActual][columnaActual] = false;
-
-     
-        return false;
+        return false; 
     }
 
 
