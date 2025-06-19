@@ -196,14 +196,17 @@ import EDD.Grafo;
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            
+         } catch (ClassNotFoundException ex) {
+          
             System.err.println("Error: ClassNotFoundException: " + ex.getMessage());
         } catch (InstantiationException ex) {
+           
             System.err.println("Error: InstantiationException: " + ex.getMessage());
         } catch (IllegalAccessException ex) {
+            
             System.err.println("Error: IllegalAccessException: " + ex.getMessage());
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+          
             System.err.println("Error: UnsupportedLookAndFeelException: " + ex.getMessage());
         }
         //</editor-fold>
