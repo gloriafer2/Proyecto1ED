@@ -7,10 +7,12 @@ package Interfaces;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import EDD.Grafo;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -23,11 +25,28 @@ import EDD.Grafo;
     public Grafo grafo;
     public String[] diccionario;
     public char[][] tablero;
+    private int cantidadPalabrasDiccionario; 
+    private String rutaArchivoDiccionario; 
 
     public Cargar() {
         initComponents();
         this.setLocationRelativeTo(null); 
         this.setResizable(false); 
+        this.diccionario = new String[100]; 
+        this.cantidadPalabrasDiccionario = 0;
+        this.rutaArchivoDiccionario = null;
+        
+    }
+    public String[] getDiccionario() {
+        return diccionario;
+    }
+
+    public int getCantidadPalabrasDiccionario() {
+        return cantidadPalabrasDiccionario;
+    }
+
+    public String getRutaArchivoDiccionario() {
+        return rutaArchivoDiccionario;
     }
 
 
@@ -158,25 +177,34 @@ import EDD.Grafo;
      */
     private void botonCargarArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCargarArchivoActionPerformed
        
-    JFileChooser fileChooser = new JFileChooser();
-        int seleccion = fileChooser.showOpenDialog(this);
+    JFileChooser selectorArchivo = new JFileChooser();
+        selectorArchivo.setFileFilter(new FileNameExtensionFilter("Archivos de Texto (*.txt)", "txt"));
+        int seleccion = selectorArchivo.showOpenDialog(this);
 
         if (seleccion == JFileChooser.APPROVE_OPTION) {
-            File archivo = fileChooser.getSelectedFile();
+            File archivoElegido = selectorArchivo.getSelectedFile();
+            this.rutaArchivoDiccionario = archivoElegido.getAbsolutePath(); 
+
+            
+            this.diccionario = new String[100]; 
+            this.cantidadPalabrasDiccionario = 0;
+
             try {
-                leerArchivoDeConfiguracion(archivo);
-                mostrarTableroEnGUI();
-                mostrarDiccionarioEnGUI();
+                leerArchivoDeConfiguracion(archivoElegido);
+                mostrarTableroEnPantalla();
+                mostrarDiccionarioEnPantalla();
                 JOptionPane.showMessageDialog(this, "Archivo cargado exitosamente.", "Carga Completa", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Error al leer el archivo: " + e.getMessage(), "Error de Archivo", JOptionPane.ERROR_MESSAGE);
                 System.err.println("Error de IO al cargar archivo: " + e.getMessage());
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                System.err.println("Error general al cargar archivo: " + e.getMessage()); 
-               
+                System.err.println("Error general al cargar archivo: " + e.getMessage());
+
             }
         }
+    
+
     
     }//GEN-LAST:event_botonCargarArchivoActionPerformed
 
@@ -193,14 +221,16 @@ import EDD.Grafo;
     
     private void botonContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonContinuarActionPerformed
        
- if (grafo != null && tablero != null && diccionario != null && diccionario.length > 0) {
+ // 
+        if (grafo != null && tablero != null && diccionario != null && cantidadPalabrasDiccionario > 0) {
             this.setVisible(false);
-            
-            Menu menuPrincipal = new Menu(this); 
+
+            Menu menuPrincipal = new Menu(this);
             menuPrincipal.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(this, "Debe cargar un archivo válido antes de continuar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Debe cargar un archivo válido (con tablero y diccionario) antes de continuar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
         }
+    
     }//GEN-LAST:event_botonContinuarActionPerformed
 /**
      * Método principal para iniciar la aplicación.
@@ -239,7 +269,7 @@ import EDD.Grafo;
                 new Cargar().setVisible(true);
             }
         });
-    }
+}
     
     
     
@@ -254,94 +284,107 @@ import EDD.Grafo;
      */
     
     private void leerArchivoDeConfiguracion(File archivo) throws IOException, Exception {
-        BufferedReader br = null;
+        BufferedReader lector = null;
         String line;
 
         boolean inDic = false;
         boolean inTab = false;
 
-        StringBuilder diccionarioContent = new StringBuilder();
-        String tableroContentLine = null;
+        StringBuilder contenidoDiccionario  = new StringBuilder(); 
+        String lineaTablero  = null;
 
         try {
-            br = new BufferedReader(new FileReader(archivo));
-            while ((line = br.readLine()) != null) {
+            lector = new BufferedReader(new FileReader(archivo));
+            while ((line = lector.readLine()) != null) {
                 line = line.trim();
 
                 if (line.isEmpty()) {
                     continue;
                 }
 
-                System.out.println("DEBUG: Leyendo línea: [" + line + "]");
+                System.out.println("DEBUG: Leyendo línea: [" + line + "]"); // DEBUG
 
                 if (line.equals("dic")) {
                     inDic = true;
                     inTab = false;
-                    System.out.println("DEBUG: Entrando en sección dic.");
+                    System.out.println("DEBUG: Entrando en sección dic."); // DEBUG
                     continue;
                 } else if (line.equals("/dic")) {
                     inDic = false;
-                    System.out.println("DEBUG: Saliendo de sección dic.");
+                    System.out.println("DEBUG: Saliendo de sección dic."); // DEBUG
                     continue;
                 } else if (line.equals("tab")) {
                     inTab = true;
                     inDic = false;
-                    tableroContentLine = null; 
-                    System.out.println("DEBUG: Entrando en sección tab.");
+                    lineaTablero = null;
+                    System.out.println("DEBUG: Entrando en sección tab."); // DEBUG
                     continue;
                 } else if (line.equals("/tab")) {
                     inTab = false;
-                    System.out.println("DEBUG: Saliendo de sección tab.");
+                    System.out.println("DEBUG: Saliendo de sección tab."); // DEBUG
                     continue;
                 }
 
                 if (inDic) {
-                    diccionarioContent.append(line).append("\n");
+                    contenidoDiccionario.append(line).append("\n"); // Acumula todas las líneas del diccionario
                 } else if (inTab) {
-                    if (tableroContentLine != null) {
-                        throw new Exception("Se encontró más de una línea de tablero dentro de la sección 'tab'.");
+                    if (lineaTablero != null) {
+                        throw new Exception("Se encontró más de una línea de tablero dentro de la sección 'tab'. Se espera solo una línea de 16 caracteres separados por comas.");
                     }
-                    tableroContentLine = line;
-                    System.out.println("DEBUG: Contenido de tablero leido (temporal): [" + tableroContentLine + "]");
+                    lineaTablero = line;
+                    System.out.println("DEBUG: Contenido de tablero leido (temporal): [" + lineaTablero + "]"); // DEBUG
                 }
             }
 
             
-            String dicRaw = diccionarioContent.toString().trim();
+            String dicRaw = contenidoDiccionario.toString().trim();
             if (!dicRaw.isEmpty()) {
-               
-                String[] tempDic = splitCustom(dicRaw, '\n');
+                String[] tempDicWords = dividirCadena(dicRaw, '\n'); 
+
                 
                 int validWordCount = 0;
-                for (String s : tempDic) {
-                    if (!s.trim().isEmpty()) {
+                for (int i = 0; i < tempDicWords.length; i++) {
+                    String s = tempDicWords[i];
+                    if (s != null && !s.trim().isEmpty()) {
                         validWordCount++;
                     }
                 }
-                this.diccionario = new String[validWordCount];
-                int currentIdx = 0;
-                for (String s : tempDic) {
-                    if (!s.trim().isEmpty()) {
-                        this.diccionario[currentIdx++] = s.trim();
-                    }
+
+                // Redimensionar el diccionario si el número de palabras cargadas excede el tamaño actual del arreglo
+                if (validWordCount > this.diccionario.length) {
+                    redimensionarDiccionario(validWordCount); // Asegura que haya suficiente espacio
                 }
 
+                // Llenar el diccionario con las palabras válidas y actualizar el contador
+                this.cantidadPalabrasDiccionario = 0; // Resetear el contador para llenar desde cero
+                for (int i = 0; i < tempDicWords.length; i++) {
+                    String s = tempDicWords[i];
+                    if (s != null && !s.trim().isEmpty()) {
+                        this.diccionario[this.cantidadPalabrasDiccionario++] = s.trim().toUpperCase(); // Almacenar en mayúsculas
+                    }
+                }
             } else {
-                this.diccionario = new String[0];
+                
+                this.diccionario = new String[100]; // Mantener un tamaño base
+                this.cantidadPalabrasDiccionario = 0;
             }
-
           
-            if (tableroContentLine == null || tableroContentLine.isEmpty()) {
-                throw new Exception("La sección 'tab' del archivo no contiene datos de tablero.");
+
+           
+            if (lineaTablero == null || lineaTablero.isEmpty()) {
+                throw new Exception("La sección 'tab' del archivo no contiene datos de tablero. Debe haber 16 caracteres separados por comas.");
             }
 
-            System.out.println("DEBUG: Llamando splitCustom con la línea final del tablero: [" + tableroContentLine + "]");
-            String[] letrasArray = splitCustom(tableroContentLine, ',');
+            System.out.println("DEBUG: Contenido final de la línea del tablero: [" + lineaTablero + "]"); 
+            String[] letrasArray = dividirCadena(lineaTablero, ',');
 
-            System.out.println("DEBUG: splitCustom devolvió " + letrasArray.length + " elementos.");
-            if (letrasArray.length > 0) {
-                System.out.println("DEBUG: Primer elemento de letrasArray: [" + letrasArray[0] + "]");
-            }
+            System.out.println("DEBUG: Elementos obtenidos del split custom para el tablero (length: " + letrasArray.length + "):");
+            for (int j = 0; j < letrasArray.length; j++) { 
+                String currentElement = letrasArray[j];
+                String trimmedElement = (currentElement != null ? currentElement.trim() : "NULL_VALUE");
+                boolean isEmptyAfterTrim = trimmedElement.isEmpty();
+               
+            } 
 
             int expectedSize = 16;
             int rows = 4;
@@ -350,28 +393,223 @@ import EDD.Grafo;
             this.tablero = new char[rows][cols];
 
             if (letrasArray.length != expectedSize) {
-                throw new Exception("El tablero no tiene " + expectedSize + " letras (4x4). Se encontraron " + letrasArray.length + ".");
+                throw new Exception("El tablero no tiene " + expectedSize + " letras (4x4). Se encontraron " + letrasArray.length + ". Revise la línea en la sección 'tab'.");
             }
 
             for (int i = 0; i < expectedSize; i++) {
-               
-                if (letrasArray[i] != null && !letrasArray[i].trim().isEmpty()) { 
-                    this.tablero[i / cols][i % cols] = Character.toUpperCase(letrasArray[i].trim().charAt(0)); 
+                String cellContent = letrasArray[i]; 
+                if (cellContent != null && !cellContent.trim().isEmpty()) {
+                    this.tablero[i / cols][i % cols] = Character.toUpperCase(cellContent.trim().charAt(0));
                 } else {
-                    throw new Exception("Caracter vacío o nulo encontrado en el tablero en la posición " + i + ".");
+                   
+                    throw new Exception("Caracter vacío o nulo encontrado en el tablero en la posición " + i + ".\nPor favor, asegúrese de que cada celda contenga una letra válida (ej: A,B,C,D...) y no haya entradas vacías (ej: ',,') o con solo espacios (ej: ', ,').");
                 }
             }
 
-          
             this.grafo = new EDD.Grafo(this.tablero, rows, cols); 
 
-           
         } finally {
-            if (br != null) {
-                br.close();
+            if (lector != null) {
+                lector.close();
             }
         }
     }
+    /**
+     * Redimensiona el arreglo del diccionario a un nuevo tamaño.
+     * Si el nuevo tamaño es menor que la cantidad de palabras actual,
+     * se truncarán las palabras (¡evitar esto!). Se recomienda usar un tamaño mayor.
+     * Crea un nuevo arreglo, copia los elementos existentes y actualiza la referencia.
+     *
+     * @param tamanoMinimoRequerido El tamaño mínimo que necesita el arreglo (ej. cantidad de palabras + 1).
+     */
+     private void redimensionarDiccionario(int tamanoMinimoRequerido) {
+        
+        int nuevoTamanio = Math.max(this.diccionario.length * 2, tamanoMinimoRequerido);
+        System.out.println("DEBUG: Redimensionando diccionario de " + this.diccionario.length + " a " + nuevoTamanio + " elementos.");
+        String[] nuevoDiccionario = new String[nuevoTamanio];
+
+        
+        for (int i = 0; i < this.cantidadPalabrasDiccionario; i++) {
+            nuevoDiccionario[i] = this.diccionario[i];
+        }
+        this.diccionario = nuevoDiccionario; // Asignar el nuevo arreglo
+    }
+    /**
+     * Agrega una palabra al diccionario.
+     * Convierte la palabra a mayúsculas y la agrega si no existe y hay espacio.
+     * Si el diccionario está lleno, lo redimensiona automáticamente.
+     * Después de agregar, guarda el diccionario actualizado en el archivo.
+     *
+     * @param palabra La palabra a agregar.
+     */
+    public void agregarPalabraAlDiccionario(String palabra) {
+        String palabraNormalizada = palabra.trim().toUpperCase();
+
+       
+        boolean yaExiste = false;
+        for (int i = 0; i < cantidadPalabrasDiccionario; i++) {
+            if (diccionario[i] != null && diccionario[i].equals(palabraNormalizada)) {
+                yaExiste = true;
+                break;
+            }
+        }
+
+        if (!yaExiste) {
+            
+            if (cantidadPalabrasDiccionario >= diccionario.length) {
+                JOptionPane.showMessageDialog(this, "El diccionario está lleno. Redimensionando...", "Información", JOptionPane.INFORMATION_MESSAGE);
+                redimensionarDiccionario(cantidadPalabrasDiccionario + 1); 
+            }
+
+           
+            diccionario[cantidadPalabrasDiccionario] = palabraNormalizada;
+            cantidadPalabrasDiccionario++;
+            JOptionPane.showMessageDialog(this, "La palabra '" + palabra + "' ha sido agregada al diccionario.", "Palabra Agregada", JOptionPane.INFORMATION_MESSAGE);
+
+          
+            guardarDiccionarioEnArchivo();
+            mostrarDiccionarioEnPantalla(); 
+        } else {
+            JOptionPane.showMessageDialog(this, "La palabra '" + palabra + "' ya existe en el diccionario.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    
+    /**
+     * Lee todo el contenido de un archivo a una cadena String.
+     * @param file Archivo a leer.
+     * @return Contenido del archivo como String.
+     * @throws IOException Si ocurre un error de lectura.
+     */
+    private String leerArchivoCompleto(File file) throws IOException {
+        StringBuilder constructorCadena = new StringBuilder();
+        BufferedReader lector = null;
+        try {
+            lector = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = lector.readLine()) != null) {
+                constructorCadena.append(line).append(System.lineSeparator());
+            }
+        } finally {
+            if (lector != null) {
+                try {
+                    lector.close();
+                } catch (IOException e) {
+                    System.err.println("Error al cerrar BufferedReader: " + e.getMessage());
+                }
+            }
+        }
+        return constructorCadena.toString();
+    }
+
+    /**
+     * Guarda el contenido actual del diccionario y el tablero en el archivo desde el que fue cargado.
+     * Requiere que `rutaArchivoDiccionario` esté configurado (es decir, que ya se haya cargado un archivo antes).
+     * Este método lee el archivo original, actualiza las secciones 'tab' y 'dic' y luego reescribe todo el archivo.
+     */
+    private void guardarDiccionarioEnArchivo() {
+        if (rutaArchivoDiccionario != null && !rutaArchivoDiccionario.isEmpty()) {
+            try {
+                
+                String contenidoOriginal = leerArchivoCompleto(new File(rutaArchivoDiccionario));
+
+                String nuevaSeccionTablero = "";
+               
+                if (tablero != null) {
+                    StringBuilder lineaTab = new StringBuilder();
+                    for (int r = 0; r < tablero.length; r++) {
+                        for (int c = 0; c < tablero[0].length; c++) {
+                            lineaTab.append(tablero[r][c]);
+                            if (!(r == tablero.length - 1 && c == tablero[0].length - 1)) {
+                                lineaTab.append(",");
+                            }
+                        }
+                    }
+                    if (lineaTab.length() > 0 && lineaTab.charAt(lineaTab.length() - 1) == ',') {
+                        lineaTab.setLength(lineaTab.length() - 1);
+                    }
+                    nuevaSeccionTablero = "tab" + System.lineSeparator() +
+                                           lineaTab.toString() + System.lineSeparator() +
+                                           "/tab";
+                }
+
+                String nuevaSeccionDiccionario  = "";
+              
+                StringBuilder contenidoDic  = new StringBuilder();
+                for (int i = 0; i < cantidadPalabrasDiccionario; i++) {
+                    if (diccionario[i] != null) {
+                        contenidoDic .append(diccionario[i]).append(System.lineSeparator());
+                    }
+                }
+                nuevaSeccionDiccionario = "dic" + System.lineSeparator() +
+                                       contenidoDic .toString() +
+                                       "/dic";
+
+
+                StringBuilder contenidoFinal = new StringBuilder();
+                int inicioTab = contenidoOriginal.indexOf("tab");
+                int finTab = contenidoOriginal.indexOf("/tab");
+                int inicioDic = contenidoOriginal.indexOf("dic");
+                int finDic = contenidoOriginal.indexOf("/dic");
+
+               
+                boolean tabManejado = false;
+                boolean dicManejado = false;
+
+                
+                if (inicioTab != -1 && finTab != -1 && finTab > inicioTab && inicioDic != -1 && finDic != -1 && finDic > inicioDic) {
+                    if (inicioTab < inicioDic) { 
+                        contenidoFinal.append(contenidoOriginal.substring(0, inicioTab));
+                        contenidoFinal.append(nuevaSeccionTablero).append(System.lineSeparator());
+                        tabManejado = true;
+                        
+                        contenidoFinal.append(contenidoOriginal.substring(finTab + "/tab".length(), inicioDic));
+                        contenidoFinal.append(nuevaSeccionDiccionario).append(System.lineSeparator());
+                        dicManejado = true;
+                        
+                        contenidoFinal.append(contenidoOriginal.substring(finDic + "/dic".length()));
+                    } else { 
+                        contenidoFinal.append(contenidoOriginal.substring(0, inicioDic));
+                        contenidoFinal.append(nuevaSeccionDiccionario).append(System.lineSeparator());
+                        dicManejado = true;
+                        
+                       
+                        contenidoFinal.append(contenidoOriginal.substring(finDic + "/dic".length(), inicioTab));
+                        contenidoFinal.append(nuevaSeccionTablero).append(System.lineSeparator());
+                        tabManejado = true;
+                        
+                        
+                        contenidoFinal.append(contenidoOriginal.substring(finTab + "/tab".length()));
+                    }
+                } else { 
+                    contenidoFinal.append(contenidoOriginal);
+                }
+
+                
+                if (!tabManejado && tablero != null) {
+                    contenidoFinal.append(System.lineSeparator()).append(nuevaSeccionTablero).append(System.lineSeparator());
+                }
+                if (!dicManejado) {
+                    contenidoFinal.append(System.lineSeparator()).append(nuevaSeccionDiccionario).append(System.lineSeparator());
+                }
+
+               
+                try (FileWriter escritor = new FileWriter(rutaArchivoDiccionario, false)) { 
+                    escritor.write(contenidoFinal.toString());
+                }
+
+                JOptionPane.showMessageDialog(this, "Archivo actualizado con éxito.", "Guardado", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error al guardar el archivo: " + e.getMessage(), "Error de I/O", JOptionPane.ERROR_MESSAGE);
+                System.err.println("Error al guardar la configuración: " + e.getMessage());
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No se ha cargado un archivo, no se puede guardar.", "Error al Guardar", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+
     /**
      * Implementación personalizada del método `split` para dividir una cadena
      * por un delimitador dado. A diferencia de `String.split()`, esta versión
@@ -381,38 +619,46 @@ import EDD.Grafo;
      * @param delimiter El carácter delimitador.
      * @return Un arreglo de Strings que contiene las partes de la cadena dividida.
      */
-    
-    
-    private String[] splitCustom(String text, char delimiter) {
-        int count = 0;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == delimiter) {
-                count++;
+    private String[] dividirCadena(String texto, char delimitador) {
+        if (texto == null || texto.isEmpty()) {
+            return new String[0]; 
+        }
+        
+        
+        int contadorPartes = 1;
+        for (int i = 0; i < texto.length(); i++) {
+            if (texto.charAt(i) == delimitador) {
+                contadorPartes++;
             }
         }
-        String[] result = new String[count + 1];
-        int currentElement = 0;
-        int start = 0;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == delimiter) {
-                result[currentElement++] = text.substring(start, i).trim();
-                start = i + 1;
+        
+        String[] resultado = new String[contadorPartes];
+        int indiceParteActual = 0;
+        int inicioParte = 0;
+        
+        for (int i = 0; i < texto.length(); i++) {
+            if (texto.charAt(i) == delimitador) {
+                String parte = texto.substring(inicioParte, i);
+                resultado[indiceParteActual] = parte.trim(); 
+                indiceParteActual++;
+                inicioParte = i + 1; 
             }
         }
-
-        result[currentElement] = text.substring(start).trim();
-        return result;
+        String ultimaParte = texto.substring(inicioParte);
+        resultado[indiceParteActual] = ultimaParte.trim();
+        
+        return resultado;
     }
+
+
     /**
      * Cuenta el número de líneas no vacías en un texto.
-     * (Este método no parece ser directamente usado en la lógica actual de carga
-     * de diccionario, ya que se usa `splitCustom` con `\n` y luego se filtran vacíos.
-     * Podría ser un remanente o para futuras validaciones).
+     * (Este método no se usa directamente en la lógica de carga de diccionario actual,
+     * ya que se usa `dividirCadena` con `\n` y luego se filtran vacíos. Podría ser para futuras validaciones).
      *
      * @param texto La cadena de texto a analizar.
      * @return El número de líneas no vacías.
      */
-                                                      
     private int contarLineas(String texto) {
         if (texto == null || texto.isEmpty()) {
             return 0;
@@ -422,7 +668,7 @@ import EDD.Grafo;
         for (int i = 0; i < texto.length(); i++) {
             if (texto.charAt(i) == '\n') {
                 previousCharIsNewline = true;
-            } else if (previousCharIsNewline) {
+            } else if (previousCharIsNewline && !Character.isWhitespace(texto.charAt(i))) { 
                 count++;
                 previousCharIsNewline = false;
             }
@@ -430,39 +676,40 @@ import EDD.Grafo;
         return count;
     }
 
-    
-
-    
-     private void mostrarTableroEnGUI() {
-        StringBuilder sb = new StringBuilder();
-        if (tablero != null) {
-            for (int r = 0; r < tablero.length; r++) { 
-                for (int c = 0; c < tablero[0].length; c++) { 
-                    sb.append(tablero[r][c]).append(" ");
-                }
-                sb.append("\n");
-            }
+    private void mostrarTableroEnPantalla() {
+        if (tablero == null) {
+            textAreaTablero.setText("Tablero no cargado.");
+            return;
         }
-        textAreaTablero.setText(sb.toString());
+        StringBuilder textoAMostrar = new StringBuilder();
+        for (int fila = 0; fila < tablero.length; fila++) {
+            for (int col = 0; col < tablero[fila].length; col++) {
+                textoAMostrar.append(tablero[fila][col]).append(" "); 
+            }
+            textoAMostrar.append("\n"); 
+        }
+        textAreaTablero.setText(textoAMostrar.toString());
     }
-     
-     /**
+
+    /**
      * Muestra el contenido del diccionario en el `textAreaDiccionario` de la GUI.
      * Cada palabra del diccionario se muestra en una línea separada.
      */
-    private void mostrarDiccionarioEnGUI() {
-        StringBuilder sb = new StringBuilder();
-        if (diccionario != null) {
-            for (int i = 0; i < diccionario.length; i++) {
-                if (diccionario[i] != null && !diccionario[i].isEmpty()) {
-                    sb.append(diccionario[i]).append("\n");
-                }
+     private void mostrarDiccionarioEnPantalla() {
+        if (diccionario == null || cantidadPalabrasDiccionario == 0) {
+            textAreaDiccionario.setText("Diccionario vacío.");
+            return;
+        }
+        StringBuilder textoAMostrar = new StringBuilder();
+        for (int i = 0; i < cantidadPalabrasDiccionario; i++) {
+            if (diccionario[i] != null) {
+                textoAMostrar.append(diccionario[i]).append("\n"); 
             }
         }
-        textAreaDiccionario.setText(sb.toString());
-        
-       
+        textAreaDiccionario.setText(textoAMostrar.toString());
     }
+
+
 
 
 

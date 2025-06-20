@@ -18,13 +18,13 @@ package EDD;
 public class Diccionario {
     private String[] palabras; 
     private int cantidadPalabras; 
-    private static final int CAPACIDAD_INICIAL = 100; 
+    private static final int capacidad_inicial = 100; 
 
     /**
      * Cuando creamos un Diccionario, le damos espacio para empezar.
      */
     public Diccionario() {
-        this.palabras = new String[CAPACIDAD_INICIAL];
+        this.palabras = new String[capacidad_inicial];
         this.cantidadPalabras = 0; 
     }
 

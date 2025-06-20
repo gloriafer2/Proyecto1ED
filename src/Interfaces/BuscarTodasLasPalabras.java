@@ -16,9 +16,7 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
     public static char[][] tablero;
     public static Cargar ventanaCargarOriginal;
     
-    /**
-     * Creates new form BuscarTodasLasPalabras
-     */
+    
     public BuscarTodasLasPalabras(Grafo g, String[] dict, char[][] tab, Cargar v1) {
         initComponents();
         this.setLocationRelativeTo(null);
@@ -145,7 +143,7 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
                 }
             }
             if (yaEncontrada) {
-                continue; // 
+                continue; 
             }
 
             System.out.println("DEBUG (BuscarTodasLasPalabras): Buscando palabra (BFS): " + palabraDiccionario);
@@ -256,7 +254,7 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
                     }
                 }
                 if (foundCurrentWordInBoard) {
-                    break; // Palabra encontrada en esta fila, pasar a la siguiente palabra del diccionario
+                    break; 
                 }
             }
         }
@@ -268,7 +266,7 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
             textAreaResultados.setText("No se encontraron palabras del diccionario en la sopa de letras.");
         } else {
             resultadosBuilder.append("Palabras encontradas (").append(palabrasEncontradasCount).append("):\n");
-            for (int k = 0; k < palabrasEncontradasCount; k++) { // Iterar sobre el arreglo
+            for (int k = 0; k < palabrasEncontradasCount; k++) { 
                 resultadosBuilder.append("- ").append(palabrasEncontradasArray[k]).append("\n");
             }
             textAreaResultados.setText(resultadosBuilder.toString());

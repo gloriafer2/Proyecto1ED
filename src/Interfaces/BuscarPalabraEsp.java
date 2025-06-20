@@ -14,13 +14,34 @@ import javax.swing.JTextField;
 
 
 /**
+ * La clase `BuscarPalabraEsp` representa una ventana de la interfaz gráfica de usuario (GUI)
+ * que permite al usuario buscar una palabra específica dentro del tablero de la sopa de letras
+ * y, opcionalmente, agregarla al diccionario si se encuentra y no existe.
+ *
+ * Esta ventana interactúa con una instancia de `Grafo` (que representa el tablero)
+ * y una instancia de `Cargar` (para acceder y modificar el diccionario persistente).
  *
  * @author Gloria
  */
+
+
 public class BuscarPalabraEsp extends javax.swing.JFrame {
     public static Grafo grafo;
     public static char[][] tablero; 
     public static Cargar ventanaCargarOriginal;
+    
+    
+    /**
+     * Constructor de la clase `BuscarPalabraEsp`.
+     * Inicializa los componentes de la GUI y establece las referencias
+     * a los objetos de datos compartidos (grafo, tablero, ventana de carga).
+     *
+     * @param g La instancia del `Grafo` que contiene la lógica de búsqueda en el tablero.
+     * @param dict El arreglo de Strings que representa el diccionario (aunque no se usa directamente aquí,
+     * se pasa para consistencia, y se accede a través de `ventanaCargarOriginal`).
+     * @param tab La matriz de caracteres que representa el tablero.
+     * @param v1 La instancia de la ventana `Cargar` desde la cual se invocó esta ventana.
+     */
 
     public BuscarPalabraEsp(Grafo g, String[] dict, char[][] tab, Cargar v1) {
     initComponents();
@@ -159,6 +180,14 @@ public class BuscarPalabraEsp extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
+    
+    /**
+     * Maneja el evento de acción del botón "Regresar".
+     * Oculta la ventana actual (`BuscarPalabraEsp`) y muestra la ventana del `Menu` principal,
+     * pasando la referencia a la ventana `Cargar` original para mantener los datos cargados.
+     * Finalmente, libera los recursos de esta ventana.
+     * * @param evt El evento de acción generado por el botón.
+     */
     private void botonRegresarActionPerformed(java.awt.event.ActionEvent evt) {
         this.setVisible(false);
         Menu menuNuevo = new Menu(this.ventanaCargarOriginal); 
@@ -192,22 +221,48 @@ public class BuscarPalabraEsp extends javax.swing.JFrame {
         StringBuilder rutaEncontrada = new StringBuilder(); //almecno la ruta aca
 
        
-        boolean encontrada = grafo.buscarPalabraEspecifica(palabraBuscada, rutaEncontrada);
+        boolean encontradaEnTablero = grafo.buscarPalabraEspecifica(palabraBuscada, rutaEncontrada);
 
         long tiempoFin = System.currentTimeMillis();
         long duracion = tiempoFin - tiempoInicio;
 
-       
-        if (encontrada) {
-            String resultadoTexto = "¡La palabra '" + palabraBuscada.toUpperCase() + "' fue encontrada!\n\n" +
+        if (encontradaEnTablero) {
+            String resultadoTexto = "¡La palabra '" + palabraBuscada + "' fue encontrada!\n\n" +
                                     "Ruta:\n" + rutaEncontrada.toString();
             textAreaResultados.setText(resultadoTexto);
+
+            
+            
+            
+            boolean palabraEnDiccionario = false;
+            String[] diccionarioActual = ventanaCargarOriginal.getDiccionario();
+            int cantidadActualDiccionario = ventanaCargarOriginal.getCantidadPalabrasDiccionario();
+
+            for (int i = 0; i < cantidadActualDiccionario; i++) {
+                if (diccionarioActual[i] != null && diccionarioActual[i].equals(palabraBuscada)) {
+                    palabraEnDiccionario = true;
+                    break;
+                }
+            }
+
+            if (!palabraEnDiccionario) {
+                int confirmacion = JOptionPane.showConfirmDialog(this,
+                    "La palabra '" + palabraBuscada + "' fue encontrada en el tablero pero no está en el diccionario.\n¿Desea agregarla al diccionario?",
+                    "Palabra No Encontrada en Diccionario",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+
+                if (confirmacion == JOptionPane.YES_OPTION) {
+                    ventanaCargarOriginal.agregarPalabraAlDiccionario(palabraBuscada);
+                }
+            }
+            
         } else {
-            textAreaResultados.setText("La palabra '" + palabraBuscada.toUpperCase() + "' no fue encontrada en el tablero.");
+            textAreaResultados.setText("La palabra '" + palabraBuscada + "' no fue encontrada en el tablero.");
         }
 
         jLabelTiempo.setText("Tiempo de búsqueda: " + duracion + " ms");
-
+        
         
     }//GEN-LAST:event_jButton1ActionPerformed
 

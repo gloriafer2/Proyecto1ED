@@ -27,7 +27,7 @@ import EDD.Grafo;
         this.diccionario = v1.diccionario;
         this.tablero = v1.tablero;
 
-        v1.setVisible(false); // Oculta la ventana de Cargar
+        v1.setVisible(false); 
         this.setLocationRelativeTo(null);
         this.setResizable(false);
     }
@@ -141,7 +141,7 @@ import EDD.Grafo;
     private void botonCargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCargarActionPerformed
 
         this.setVisible(false);
-        this.ventanaCargarOriginal.setVisible(true); // Vuelve a mostrar la ventana de carga
+        this.ventanaCargarOriginal.setVisible(true);
     }//GEN-LAST:event_botonCargarActionPerformed
 
     private void botonBuscarEspActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBuscarEspActionPerformed
