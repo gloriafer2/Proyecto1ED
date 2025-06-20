@@ -9,25 +9,24 @@ package EDD;
  * @author Gloria
  */
 
-
-public class Cola {
-    private Object[] elementos; 
+public class Cola <T> {
+    private T[] elementos;
     private int frente;
-    private int finalCola;
-    private int tamano;
+    private int finalCola; // Cambiado de 'fin' a 'finalCola'
+    private int tamano;    // Cambiado de 'tamanoActual' a 'tamano'
     private int capacidad;
 
     public Cola(int capacidad) {
         this.capacidad = capacidad;
-        this.elementos = new Object[capacidad]; 
+        this.elementos = (T[]) new Object[capacidad];
         this.frente = 0;
         this.finalCola = -1;
         this.tamano = 0;
     }
 
-    public void encolar(Object elemento) {
+    // Método encolar: Cambiar 'Object elemento' a 'T elemento'
+    public void encolar(T elemento) { // <--- CAMBIO AQUÍ
         if (estaLlena()) {
-            
             System.err.println("Error: La cola está llena. No se puede encolar el elemento.");
             return;
         }
@@ -36,13 +35,13 @@ public class Cola {
         tamano++;
     }
 
-    public Object desencolar() { // Devuelve Object
+    // Método desencolar: Cambiar 'Object desencolar()' a 'T desencolar()'
+    public T desencolar() { // <--- CAMBIO AQUÍ
         if (estaVacia()) {
-            
             System.err.println("Error: La cola está vacía. No se puede desencolar.");
-            return null;
+            return null; // O lanzar una excepción si prefieres
         }
-        Object elemento = elementos[frente];
+        T elemento = elementos[frente]; // <--- CAMBIO AQUÍ
         elementos[frente] = null; // Liberar referencia
         frente = (frente + 1) % capacidad;
         tamano--;
@@ -57,7 +56,16 @@ public class Cola {
         return tamano == capacidad;
     }
 
+    // Método getTamano: Coincide con 'getTamanoActual()' de discusiones previas, pero el nombre 'getTamano()' es el que usas
     public int getTamano() {
         return tamano;
     }
+
+    // Si también tenías un método 'verFrente()', su firma sería:
+    // public T verFrente() {
+    //     if (estaVacia()) {
+    //         return null;
+    //     }
+    //     return elementos[frente];
+    // }
 }
