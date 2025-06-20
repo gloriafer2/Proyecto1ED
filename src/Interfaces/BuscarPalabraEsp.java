@@ -207,7 +207,7 @@ public class BuscarPalabraEsp extends javax.swing.JFrame {
         }
 
         
-        String palabraBuscada = campoPalabra.getText().trim();
+        String palabraBuscada = campoPalabra.getText().trim().toUpperCase();
 
         
         if (palabraBuscada.isEmpty()) {
