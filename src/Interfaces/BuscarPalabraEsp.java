@@ -29,6 +29,7 @@ public class BuscarPalabraEsp extends javax.swing.JFrame {
     public static Grafo grafo;
     public static char[][] tablero; 
     public static Cargar ventanaCargarOriginal;
+    public String[] diccionario;
     
     
     /**
@@ -49,7 +50,9 @@ public class BuscarPalabraEsp extends javax.swing.JFrame {
         this.setResizable(false);
         BuscarPalabraEsp.grafo = g;
         BuscarPalabraEsp.tablero = tab;
-        BuscarPalabraEsp.ventanaCargarOriginal = v1;    }
+        BuscarPalabraEsp.ventanaCargarOriginal = v1;   
+        this.diccionario = dict;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

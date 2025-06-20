@@ -16,7 +16,16 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
     public static char[][] tablero;
     public static Cargar ventanaCargarOriginal;
     
-    
+    /**
+     * Constructor de la clase `BuscarTodasLasPalabras`.
+     * Inicializa los componentes de la GUI y establece las referencias estáticas
+     * a los objetos de datos compartidos (grafo, diccionario, tablero, y la ventana `Cargar`).
+     *
+     * @param g La instancia del `Grafo` que contiene el tablero y los métodos de búsqueda.
+     * @param dict El arreglo de Strings que conforma el diccionario de palabras.
+     * @param tab La matriz de caracteres que representa el tablero de la sopa de letras.
+     * @param v1 La instancia de la ventana `Cargar` desde la cual se invocó esta ventana.
+     */
     
     public BuscarTodasLasPalabras(Grafo g, String[] dict, char[][] tab, Cargar v1) {
         initComponents();
@@ -90,6 +99,15 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+     /**
+     * Maneja el evento de acción del botón "Regresar".
+     * Oculta la ventana actual (`BuscarTodasLasPalabras`) y muestra la ventana del `Menu` principal,
+     * pasando la referencia a la ventana `Cargar` original para mantener los datos cargados.
+     * Finalmente, libera los recursos de esta ventana.
+     *
+     * @param evt El evento de acción generado por el botón.
+     */
     private void botonRegresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRegresarActionPerformed
       
         this.setVisible(false);
@@ -98,6 +116,15 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_botonRegresarActionPerformed
 
+    
+    /**
+     * Maneja el evento de acción del botón "BFS".
+     * Realiza una búsqueda de todas las palabras del diccionario en el tablero utilizando
+     * el algoritmo de Búsqueda en Amplitud (BFS). Muestra las palabras encontradas y
+     * el tiempo que tomó la búsqueda en el área de texto de resultados y en la etiqueta de tiempo.
+     *
+     * @param evt El evento de acción generado por el botón.
+     */
     private void BfsBotonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BfsBotonActionPerformed
        
         textAreaResultados.setText("Buscando palabras (BFS)...\n"); 
@@ -147,8 +174,6 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
                 continue; 
             }
 
-            System.out.println("DEBUG (BuscarTodasLasPalabras): Buscando palabra (BFS): " + palabraDiccionario);
-
             
             boolean palabraActualEncontradaEnTablero = false;
             for (int f = 0; f < numFilas; f++) {
@@ -182,10 +207,16 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
         }
         jLabelTiempo.setText("Tiempo de búsqueda (BFS): " + duracion + " ms");
 
-        System.out.println("DEBUG (BuscarTodasLasPalabras): Resultados finales (BFS):\n" + textAreaResultados.getText());
-        System.out.println("DEBUG (BuscarTodasLasPalabras): Tiempo total de búsqueda (BFS): " + duracion + " ms");
     }//GEN-LAST:event_BfsBotonActionPerformed
 
+    /**
+     * Maneja el evento de acción del botón "DFS".
+     * Realiza una búsqueda de todas las palabras del diccionario en el tablero utilizando
+     * el algoritmo de Búsqueda en Profundidad (DFS). Muestra las palabras encontradas y
+     * el tiempo que tomó la búsqueda en el área de texto de resultados y en la etiqueta de tiempo.
+     *
+     * @param evt El evento de acción generado por el botón.
+     */
     private void DfsBotonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DfsBotonActionPerformed
 
         textAreaResultados.setText("Buscando palabras...\n");
@@ -218,7 +249,6 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
             palabra = palabra.trim().toUpperCase();
 
             if (palabra.length() < 3) {
-                System.out.println("DEBUG (BuscarTodasLasPalabras): Palabra '" + palabra + "' ignorada, menos de 3 letras.");
                 continue;
             }
 
@@ -231,7 +261,6 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
                 }
             }
             if (alreadyFound) {
-                System.out.println("DEBUG (BuscarTodasLasPalabras): Palabra '" + palabra + "' ya encontrada, saltando.");
                 continue;
             }
 
@@ -250,8 +279,7 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
                             System.err.println("Advertencia: El arreglo de palabras encontradas está lleno. No se pueden almacenar más palabras.");
                         }
                         foundCurrentWordInBoard = true;
-                        System.out.println("DEBUG (BuscarTodasLasPalabras): Palabra encontrada: " + palabra);
-                        break; // Palabra encontrada, pasar a la siguiente palabra del diccionario
+                        break; 
                     }
                 }
                 if (foundCurrentWordInBoard) {
@@ -275,8 +303,6 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
 
         jLabelTiempo.setText("Tiempo de búsqueda: " + duration + " ms");
 
-        System.out.println("DEBUG (BuscarTodasLasPalabras): Resultados finales (DFS):\n" + textAreaResultados.getText());
-        System.out.println("DEBUG (BuscarTodasLasPalabras): Tiempo total de búsqueda: " + duration + " ms");
     
         
         

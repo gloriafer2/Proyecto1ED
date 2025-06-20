@@ -5,8 +5,15 @@
 package Interfaces;
 import EDD.Grafo; 
 
-
 /**
+ * La clase `Menu` representa la ventana principal de la interfaz gráfica de usuario (GUI)
+ * de la aplicación de sopa de letras. Permite al usuario navegar a diferentes funcionalidades
+ * como cargar un archivo, buscar una palabra específica o buscar todas las palabras del diccionario
+ * en el tablero.
+ *
+ * Esta ventana actúa como un punto central de la aplicación, manteniendo referencias
+ * a los datos principales (grafo, diccionario, tablero) que son compartidos entre las
+ * diferentes vistas (ventanas).
  *
  * @author Gloria
  */
@@ -20,6 +27,16 @@ import EDD.Grafo;
     public Cargar ventanaCargarOriginal;
 
    
+    /**
+     * Constructor de la clase `Menu`.
+     * Inicializa los componentes de la GUI y establece las referencias a los
+     * objetos de datos compartidos, que se obtienen de la instancia de `Cargar`
+     * pasada como parámetro. Oculta la ventana `Cargar` original y centra
+     * esta nueva ventana en la pantalla, deshabilitando su redimensionamiento.
+     *
+     * @param v1 La instancia de la ventana `Cargar` desde la cual se invoca este menú.
+     * Contiene los datos del grafo, diccionario y tablero ya cargados.
+     */
     public Menu(Cargar v1) {
         initComponents();
         this.ventanaCargarOriginal = v1;
@@ -137,7 +154,14 @@ import EDD.Grafo;
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+/**
+     * Maneja el evento de acción del botón "Cargar archivo".
+     * Oculta la ventana actual (`Menu`) y vuelve a hacer visible la ventana `Cargar`
+     * que permitió la carga inicial de los datos. Esto permite al usuario cargar
+     * un nuevo archivo si lo desea.
+     *
+     * @param evt El evento de acción generado por el botón.
+     */
     private void botonCargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonCargarActionPerformed
 
         this.setVisible(false);
@@ -151,6 +175,15 @@ import EDD.Grafo;
         buscarEspecifica.setVisible(true); 
     }//GEN-LAST:event_botonBuscarEspActionPerformed
 
+    /**
+     * Maneja el evento de acción del botón "Buscar todas las palabras".
+     * Oculta la ventana actual (`Menu`) y abre una nueva ventana `BuscarTodasLasPalabras`
+     * para realizar una búsqueda exhaustiva de todas las palabras del diccionario
+     * en el tablero. Pasa las referencias del grafo, diccionario, tablero y la ventana `Cargar`
+     * a la nueva ventana.
+     *
+     * @param evt El evento de acción generado por el botón.
+     */
     private void botonBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBuscarActionPerformed
        
         this.setVisible(false);
@@ -162,25 +195,16 @@ import EDD.Grafo;
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
+    
+    java.awt.EventQueue.invokeLater(new Runnable() {
+        public void run() {
+            
+            new Cargar().setVisible(true);
+
            
-            System.err.println("Error ClassNotFoundException: " + ex.getMessage());
-        } catch (InstantiationException ex) {
-            System.err.println("Error InstantiationException: " + ex.getMessage());
-        } catch (IllegalAccessException ex) {
-            System.err.println("Error IllegalAccessException: " + ex.getMessage());
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            System.err.println("Error UnsupportedLookAndFeelException: " + ex.getMessage());
         }
-    }
+    });
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonBuscar;
