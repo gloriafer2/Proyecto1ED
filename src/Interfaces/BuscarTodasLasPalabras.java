@@ -17,6 +17,7 @@ public class BuscarTodasLasPalabras extends javax.swing.JFrame {
     public static Cargar ventanaCargarOriginal;
     
     
+    
     public BuscarTodasLasPalabras(Grafo g, String[] dict, char[][] tab, Cargar v1) {
         initComponents();
         this.setLocationRelativeTo(null);

@@ -209,13 +209,18 @@ public class BuscarPalabraEsp extends javax.swing.JFrame {
         
         String palabraBuscada = campoPalabra.getText().trim().toUpperCase();
 
-        
         if (palabraBuscada.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, ingrese una palabra para buscar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
             textAreaResultados.setText("No se ingresó ninguna palabra.");
             return;
         }
 
+        
+        if (palabraBuscada.length() < 3) {
+            JOptionPane.showMessageDialog(this, "La palabra debe tener al menos 3 letras para ser válida.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            textAreaResultados.setText("Palabra demasiado corta. Mínimo 3 letras.");
+            return; 
+        }
         
         long tiempoInicio = System.currentTimeMillis();
         StringBuilder rutaEncontrada = new StringBuilder(); //almecno la ruta aca
