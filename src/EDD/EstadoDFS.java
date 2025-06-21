@@ -8,8 +8,7 @@ package EDD;
  *
  * @author Gloria
  */
-    
-public class EstadoDFS {
+    public class EstadoDFS {
     public int fila;
     public int columna;
     public int indicePalabraBuscada;
